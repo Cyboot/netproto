@@ -13,7 +13,7 @@ public class ClientMain {
 
 	public static void main(final String[] args) {
 		NetworkManager nm = NetworkManager.getInstance();
-		nm.registerWithServer();
+		nm.registerWithServer("127.0.0.1");
 
 		GameEngine engine = new GameEngine();
 		JFrame frame = new JFrame("NetProto");
