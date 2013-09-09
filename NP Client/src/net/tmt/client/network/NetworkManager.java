@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.tmt.common.network.ClientInitDTO;
 import net.tmt.common.network.DTO;
 
 public class NetworkManager implements NetworkSend {
-
 	private static NetworkManager	instance;
+
+	private List<DTO>				dtoToSend	= new ArrayList<>();
 	private long					myClientId;
 	private String					hostname;
 
@@ -45,8 +48,7 @@ public class NetworkManager implements NetworkSend {
 					clientSocket.close();
 
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.err.println("unable to register with server: " + e);
 				}
 			}
 		};
@@ -55,32 +57,34 @@ public class NetworkManager implements NetworkSend {
 	}
 
 	@Override
-	public void sendUpdatedEntity(final DTO entity) {
-		try {
-			Socket s = new Socket(this.hostname, 6789);
-
-			/* send DTO */
-			ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-			out.writeObject(entity);
-			out.flush();
-
-			s.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void sendDTO(final DTO dto) {
+		dtoToSend.add(dto);
 	}
 
-	@Override
-	public void sendNewEntity(final DTO entity) {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public void sendNow() {
-		// TODO Auto-generated method stub
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					Socket s = new Socket(hostname, 6789);
 
+					/* send DTO */
+					ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+
+					for (DTO dto : dtoToSend)
+						out.writeObject(dto);
+					out.flush();
+
+					s.close();
+					dtoToSend.clear();
+				} catch (IOException e) {
+					System.err.println("unable to send DTO: " + e);
+				}
+
+			};
+		}.start();
 	}
 
 }

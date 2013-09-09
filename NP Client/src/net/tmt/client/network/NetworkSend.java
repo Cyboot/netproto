@@ -4,9 +4,7 @@ import net.tmt.common.network.DTO;
 
 public interface NetworkSend {
 
-	public void sendUpdatedEntity(DTO entity);
-
-	public void sendNewEntity(DTO entity);
+	public void sendDTO(DTO dto);
 
 	public void sendNow();
 }

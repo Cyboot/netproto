@@ -29,6 +29,7 @@ public class GameEngine extends Canvas {
 		this.setMinimumSize(dim);
 		this.setMaximumSize(dim);
 
+		addKeyListener(Controls.getInstance());
 		setBackground(Color.DARK_GRAY);
 	}
 

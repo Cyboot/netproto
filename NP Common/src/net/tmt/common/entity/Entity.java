@@ -7,6 +7,7 @@ import net.tmt.common.network.EntityDTO;
 import net.tmt.common.util.Vector2d;
 
 public abstract class Entity {
+	private boolean		isAlive	= true;
 	protected Vector2d	pos;
 	protected Vector2d	dir;
 
@@ -17,6 +18,14 @@ public abstract class Entity {
 
 	public void tick() {
 		pos.add(dir);
+	}
+
+	public void kill() {
+		isAlive = false;
+	}
+
+	public boolean isAlive() {
+		return isAlive;
 	}
 
 	public abstract void render(Graphics g);
