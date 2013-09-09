@@ -1,14 +1,42 @@
 package net.tmt.server.game;
 
+import java.util.List;
+
+import net.tmt.common.network.DTO;
+import net.tmt.common.util.CountdownTimer;
+import net.tmt.server.network.NetworkReceive;
+import net.tmt.server.network.NetworkSend;
 
 public class GameLoop extends Thread {
-	private static final int	DELTA_TARGET	= 15;
+	public static final int		DELTA_TARGET		= 15;
+	private static final int	DELTA_TARGET_NANOS	= DELTA_TARGET * 1000 * 1000;
 
 	private float				cpuWorkload;
+	private NetworkSend			networkSend;
+	private NetworkReceive		networkReceive;
+	private CountdownTimer		timerSend;
+
+	/**
+	 * tick Method of the server
+	 */
+	private void tick() {
+		// TODO game logic here (NPC, Player, other entities, Scores...)
+		synchronizeEntitis(networkReceive.getClientEntities());
+
+
+		if (timerSend.isTimeleft()) {
+			networkSend.sendUpdatedEntity(null);
+			networkSend.sendNewEntity(null);
+			networkSend.sendNow();
+		}
+	}
+
+	private void synchronizeEntitis(final List<DTO> clientEntities) {
+
+	}
 
 	@Override
 	public void run() {
-		final int DELTA_TARGET_NANOS = DELTA_TARGET * 1000 * 1000;
 
 		while (true) {
 			long timeStart = System.nanoTime();
@@ -16,22 +44,11 @@ public class GameLoop extends Thread {
 			// ##### tick #####
 			tick();
 
-			regulateFPS(timeStart, DELTA_TARGET_NANOS);
+			regulateFPS(timeStart);
 		}
 	}
 
-	/**
-	 * tick Method of the server
-	 */
-	private void tick() {
-		// TODO game logic here (NPC, Player, other entities, Scores...)
-
-		// TODO updates Clients (test how often)
-		// System.out.println("I'm the Boss (" +
-		// StringFormatter.format(cpuWorkload) + ")");
-	}
-
-	private void regulateFPS(final long timeStart, final long DELTA_TARGET_NANOS) {
+	private void regulateFPS(final long timeStart) {
 		long timePassed = System.nanoTime() - timeStart;
 		if (timePassed < DELTA_TARGET_NANOS) {
 			long sleepTime = DELTA_TARGET_NANOS - timePassed;

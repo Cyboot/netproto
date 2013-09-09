@@ -1,5 +1,6 @@
 package net.tmt.server;
 
+import net.tmt.common.util.CountdownTimer;
 import net.tmt.server.game.GameLoop;
 import net.tmt.server.network.AcceptThread;
 
@@ -12,6 +13,7 @@ public class ServerMain {
 		AcceptThread at = new AcceptThread();
 		at.start();
 
+		CountdownTimer.setDELTA_TARGET(GameLoop.DELTA_TARGET);
 		GameLoop loop = new GameLoop();
 		loop.start();
 	}

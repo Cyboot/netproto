@@ -8,12 +8,14 @@ import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 
 import net.tmt.client.game.Game;
+import net.tmt.common.util.CountdownTimer;
 import net.tmt.common.util.StringFormatter;
 
 @SuppressWarnings("serial")
 public class GameEngine extends Canvas {
 	public static final int	DELTA_TARGET	= 15;
 
+	private Game			game;
 	private float			cpuWorkload;
 	private String			cpuWorkloadText	= "";
 
@@ -31,6 +33,10 @@ public class GameEngine extends Canvas {
 	}
 
 	public void start() {
+		// init things
+		game = Game.getInstance();
+		CountdownTimer.setDELTA_TARGET(DELTA_TARGET);
+
 		final int DELTA_TARGET_NANOS = DELTA_TARGET * 1000 * 1000;
 
 		while (true) {
@@ -57,7 +63,7 @@ public class GameEngine extends Canvas {
 	 * The tick method, all calculation here
 	 */
 	private void tick() {
-
+		game.tick();
 	}
 
 	/**
@@ -68,6 +74,7 @@ public class GameEngine extends Canvas {
 	private void render(final Graphics g) {
 		g.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
 
+		game.render(g);
 
 		g.setColor(Color.yellow);
 		g.setFont(getFont());
