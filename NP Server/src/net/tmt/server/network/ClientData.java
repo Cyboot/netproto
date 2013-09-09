@@ -4,10 +4,12 @@ import java.net.InetAddress;
 
 public class ClientData {
 
-	InetAddress	ip;
+	InetAddress	ipAddr;
+	int			id;
 
-	public ClientData(final InetAddress ipAddr) {
-		this.ip = ipAddr;
+	public ClientData(final int id, final InetAddress ipAddr) {
+		this.id = id;
+		this.ipAddr = ipAddr;
 	}
 
 }

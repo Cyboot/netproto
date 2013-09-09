@@ -10,8 +10,8 @@ import java.net.Socket;
 
 public class AcceptThread extends Thread {
 
-	ServerSocket	acceptSocket;
-	int				currClientId	= 0;
+	private ServerSocket	acceptSocket;
+	private int				currClientId	= 0;
 
 	@Override
 	public void run() {
@@ -29,8 +29,8 @@ public class AcceptThread extends Thread {
 				Socket connectionSocket = this.acceptSocket.accept();
 				InetAddress clientIp = connectionSocket.getInetAddress();
 				System.out.println("new client: " + clientIp.toString());
-				ClientData cd = new ClientData(clientIp);
-				// TODO use cd
+				ClientData currCd = new ClientData(this.currClientId, clientIp);
+				NetworkManager.getInstance().addClient(currCd);
 
 				BufferedReader inFromClient = new BufferedReader(new InputStreamReader(
 						connectionSocket.getInputStream()));

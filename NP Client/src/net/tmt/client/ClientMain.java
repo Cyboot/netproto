@@ -6,14 +6,14 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import net.tmt.client.engine.GameEngine;
-import net.tmt.client.network.SendThread;
+import net.tmt.client.network.NetworkManager;
 
 
 public class ClientMain {
 
 	public static void main(final String[] args) {
-		SendThread st = new SendThread();
-		st.start();
+		NetworkManager nm = NetworkManager.getInstance();
+		nm.registerWithServer();
 
 		GameEngine engine = new GameEngine();
 		JFrame frame = new JFrame("NetProto");

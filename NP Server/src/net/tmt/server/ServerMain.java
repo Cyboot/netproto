@@ -2,7 +2,7 @@ package net.tmt.server;
 
 import net.tmt.common.util.CountdownTimer;
 import net.tmt.server.game.GameLoop;
-import net.tmt.server.network.AcceptThread;
+import net.tmt.server.network.NetworkManager;
 
 public class ServerMain {
 
@@ -10,8 +10,8 @@ public class ServerMain {
 		// TODO command line arguments
 		// TODO read configs
 
-		AcceptThread at = new AcceptThread();
-		at.start();
+		NetworkManager nm = NetworkManager.getInstance();
+		nm.acceptClients();
 
 		CountdownTimer.setDELTA_TARGET(GameLoop.DELTA_TARGET);
 		GameLoop loop = new GameLoop();
