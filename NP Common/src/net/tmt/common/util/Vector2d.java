@@ -31,6 +31,18 @@ public class Vector2d {
 		return Math.sqrt(dx * dx + dy * dy);
 	}
 
+	public Vector2d add(final Vector2d other) {
+		this.x += other.x;
+		this.y += other.y;
+		return this;
+	}
+
+	public Vector2d set(final Vector2d other) {
+		this.x = other.x;
+		this.y = other.y;
+		return this;
+	}
+
 	public int x() {
 		return (int) x;
 	}
