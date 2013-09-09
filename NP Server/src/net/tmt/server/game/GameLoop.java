@@ -3,13 +3,13 @@ package net.tmt.server.game;
 import net.tmt.common.util.StringFormatter;
 
 public class GameLoop extends Thread {
-	private static final int	DELTA_TARGET	= 15;
+	private static final int	DELTA_TARGET		= 15;
+	private static final int	DELTA_TARGET_NANOS	= DELTA_TARGET * 1000 * 1000;
 
 	private float				cpuWorkload;
 
 	@Override
 	public void run() {
-		final int DELTA_TARGET_NANOS = DELTA_TARGET * 1000 * 1000;
 
 		while (true) {
 			long timeStart = System.nanoTime();
@@ -17,7 +17,7 @@ public class GameLoop extends Thread {
 			// ##### tick #####
 			tick();
 
-			regulateFPS(timeStart, DELTA_TARGET_NANOS);
+			regulateFPS(timeStart);
 		}
 	}
 
@@ -31,7 +31,7 @@ public class GameLoop extends Thread {
 		System.out.println("I'm the Boss (" + StringFormatter.format(cpuWorkload) + ")");
 	}
 
-	private void regulateFPS(long timeStart, long DELTA_TARGET_NANOS) {
+	private void regulateFPS(long timeStart) {
 		long timePassed = System.nanoTime() - timeStart;
 		if (timePassed < DELTA_TARGET_NANOS) {
 			long sleepTime = DELTA_TARGET_NANOS - timePassed;

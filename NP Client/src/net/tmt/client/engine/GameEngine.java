@@ -57,7 +57,6 @@ public class GameEngine extends Canvas {
 	 * The tick method, all calculation here
 	 */
 	private void tick() {
-
 	}
 
 	/**
