@@ -6,11 +6,15 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import net.tmt.client.engine.GameEngine;
+import net.tmt.client.network.SendThread;
 
 
 public class ClientMain {
 
 	public static void main(final String[] args) {
+		SendThread st = new SendThread();
+		st.start();
+
 		GameEngine engine = new GameEngine();
 		JFrame frame = new JFrame("NetProto");
 		JPanel panel = new JPanel(new BorderLayout());

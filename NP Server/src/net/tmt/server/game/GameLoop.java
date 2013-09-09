@@ -1,6 +1,5 @@
 package net.tmt.server.game;
 
-import net.tmt.common.util.StringFormatter;
 
 public class GameLoop extends Thread {
 	private static final int	DELTA_TARGET	= 15;
@@ -28,7 +27,8 @@ public class GameLoop extends Thread {
 		// TODO game logic here (NPC, Player, other entities, Scores...)
 
 		// TODO updates Clients (test how often)
-		System.out.println("I'm the Boss (" + StringFormatter.format(cpuWorkload) + ")");
+		// System.out.println("I'm the Boss (" +
+		// StringFormatter.format(cpuWorkload) + ")");
 	}
 
 	private void regulateFPS(final long timeStart, final long DELTA_TARGET_NANOS) {
