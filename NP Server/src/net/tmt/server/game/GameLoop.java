@@ -31,7 +31,7 @@ public class GameLoop extends Thread {
 		System.out.println("I'm the Boss (" + StringFormatter.format(cpuWorkload) + ")");
 	}
 
-	private void regulateFPS(long timeStart) {
+	private void regulateFPS(final long timeStart) {
 		long timePassed = System.nanoTime() - timeStart;
 		if (timePassed < DELTA_TARGET_NANOS) {
 			long sleepTime = DELTA_TARGET_NANOS - timePassed;

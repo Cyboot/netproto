@@ -7,7 +7,7 @@ public class Vector2d {
 	public Vector2d() {
 	}
 
-	public Vector2d(double x, double y) {
+	public Vector2d(final double x, final double y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -16,15 +16,15 @@ public class Vector2d {
 		return new Vector2d(x, y);
 	}
 
-	public Vector2d difference(Vector2d other) {
+	public Vector2d difference(final Vector2d other) {
 		return new Vector2d(x - other.x, y - other.y);
 	}
 
-	public Vector2d sum(Vector2d other) {
+	public Vector2d sum(final Vector2d other) {
 		return new Vector2d(x + other.x, y + other.y);
 	}
 
-	public double distance(Vector2d other) {
+	public double distance(final Vector2d other) {
 		double dx = other.x - x;
 		double dy = other.y - y;
 

@@ -10,7 +10,7 @@ import net.tmt.client.engine.GameEngine;
 
 public class ClientMain {
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		GameEngine engine = new GameEngine();
 		JFrame frame = new JFrame("NetProto");
 		JPanel panel = new JPanel(new BorderLayout());

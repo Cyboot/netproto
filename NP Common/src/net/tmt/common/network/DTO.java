@@ -13,7 +13,7 @@ public abstract class DTO implements Serializable {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(final long id) {
 		this.id = id;
 	}
 
@@ -21,7 +21,7 @@ public abstract class DTO implements Serializable {
 		return clientId;
 	}
 
-	public void setClientId(long clientId) {
+	public void setClientId(final long clientId) {
 		this.clientId = clientId;
 	}
 
@@ -29,7 +29,7 @@ public abstract class DTO implements Serializable {
 		return timestamp;
 	}
 
-	public void setTimestamp(long timestamp) {
+	public void setTimestamp(final long timestamp) {
 		this.timestamp = timestamp;
 	}
 }

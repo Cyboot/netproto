@@ -64,7 +64,7 @@ public class GameEngine extends Canvas {
 	 * 
 	 * @param g
 	 */
-	private void render(Graphics g) {
+	private void render(final Graphics g) {
 		g.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
 
 
@@ -77,7 +77,7 @@ public class GameEngine extends Canvas {
 		Toolkit.getDefaultToolkit().sync();
 	}
 
-	private void regulateFPS(long timeStart, long DELTA_TARGET_NANOS) {
+	private void regulateFPS(final long timeStart, final long DELTA_TARGET_NANOS) {
 		long timePassed = System.nanoTime() - timeStart;
 		if (timePassed < DELTA_TARGET_NANOS) {
 			long sleepTime = DELTA_TARGET_NANOS - timePassed;

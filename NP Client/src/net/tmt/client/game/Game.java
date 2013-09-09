@@ -13,7 +13,7 @@ public class Game {
 		// TODO send own position & co to server
 	}
 
-	public void render(Graphics g) {
+	public void render(final Graphics g) {
 
 	}
 }
