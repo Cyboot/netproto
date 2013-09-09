@@ -10,11 +10,11 @@ public class StringFormatter {
 	private static DecimalFormat	df_extra	= new DecimalFormat("#0.00",
 														DecimalFormatSymbols.getInstance(Locale.US));
 
-	public static String format(double value) {
+	public static String format(final double value) {
 		return df_standart.format(value);
 	}
 
-	public static String format(double value, int integerDigit, int fractionDigit) {
+	public static String format(final double value, final int integerDigit, final int fractionDigit) {
 		df_extra.setMaximumFractionDigits(fractionDigit);
 		df_extra.setMinimumFractionDigits(fractionDigit);
 

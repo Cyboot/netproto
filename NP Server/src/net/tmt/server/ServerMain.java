@@ -4,7 +4,7 @@ import net.tmt.server.game.GameLoop;
 
 public class ServerMain {
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		// TODO command line arguments
 		// TODO read configs
 
