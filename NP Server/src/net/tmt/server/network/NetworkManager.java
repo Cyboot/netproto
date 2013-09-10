@@ -16,7 +16,7 @@ public class NetworkManager {
 	}
 
 	public void acceptClients() {
-		ReceiveThread at = new ReceiveThread();
+		AcceptThread at = new AcceptThread();
 		at.start();
 	}
 

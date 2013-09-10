@@ -15,6 +15,7 @@ public class ClientMain {
 		NetworkManager nm = NetworkManager.getInstance();
 		nm.registerWithServer("127.0.0.1");
 
+
 		GameEngine engine = new GameEngine();
 		JFrame frame = new JFrame("NetProto");
 		JPanel panel = new JPanel(new BorderLayout());
@@ -23,13 +24,13 @@ public class ClientMain {
 		frame.pack();
 		frame.setResizable(false);
 
-		// TODO client config
-		frame.setLocationRelativeTo(null);
-		// frame.setLocation(-1200, 50);
+		// TODO client config frame.setLocationRelativeTo(null); //
+		frame.setLocation(-1200, 50);
 
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		engine.start();
+
 	}
 
 }

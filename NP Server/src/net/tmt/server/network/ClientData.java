@@ -1,15 +1,12 @@
 package net.tmt.server.network;
 
-import java.net.InetAddress;
 
 public class ClientData {
 
-	InetAddress	ipAddr;
-	int			id;
+	int	id;
 
-	public ClientData(final int id, final InetAddress ipAddr) {
+	public ClientData(final int id) {
 		this.id = id;
-		this.ipAddr = ipAddr;
 	}
 
 }

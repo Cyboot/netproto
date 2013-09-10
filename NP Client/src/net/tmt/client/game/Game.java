@@ -30,7 +30,9 @@ public class Game {
 	private PlayerEntity	player;
 
 	public Game() {
-		entities.add(new AsteroidEntity(new Vector2d(), new Vector2d(0.2, 0.2)));
+		for (int i = 0; i < 100000; i++)
+			entities.add(new AsteroidEntity(new Vector2d(WIDTH / 2, HEIGHT / 2), new Vector2d(Math.random() - 0.5, Math
+					.random() - 0.5)));
 		player = new PlayerEntity(new Vector2d(WIDTH / 2, HEIGHT / 2));
 	}
 
@@ -46,6 +48,7 @@ public class Game {
 		}
 		// remove all dead entities
 		entities.removeAll(killedEntities);
+		killedEntities.clear();
 
 		player.tick();
 

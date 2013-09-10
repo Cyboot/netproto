@@ -8,7 +8,7 @@ public class ServerMain {
 
 	public static void main(final String[] args) {
 		// TODO command line arguments
-		// TODO read configs
+		// TODO read config
 
 		NetworkManager nm = NetworkManager.getInstance();
 		nm.acceptClients();
