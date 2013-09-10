@@ -1,9 +1,15 @@
 package net.tmt.server.game;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import net.tmt.common.entity.AsteroidEntity;
+import net.tmt.common.entity.Entity;
 import net.tmt.common.network.DTO;
+import net.tmt.common.network.PackageDTO;
 import net.tmt.common.util.CountdownTimer;
+import net.tmt.common.util.Vector2d;
+import net.tmt.server.network.NetworkManagerServer;
 import net.tmt.server.network.NetworkReceive;
 import net.tmt.server.network.NetworkSend;
 
@@ -12,21 +18,33 @@ public class GameLoop extends Thread {
 	private static final int	DELTA_TARGET_NANOS	= DELTA_TARGET * 1000 * 1000;
 
 	private float				cpuWorkload;
-	private NetworkSend			networkSend;
+	private NetworkSend			networkSend			= NetworkManagerServer.getInstance();
 	private NetworkReceive		networkReceive;
-	private CountdownTimer		timerSend;
+	private CountdownTimer		timerSend			= new CountdownTimer(1000);
+	private List<Entity>		entities			= new ArrayList<>();
 
-	/**
-	 * tick Method of the server
-	 */
+	public GameLoop() {
+		Entity e = new AsteroidEntity(new Vector2d(), new Vector2d());
+		Entity e2 = new AsteroidEntity(new Vector2d(), new Vector2d());
+		e.setId(123);
+		entities.add(e);
+		entities.add(e2);
+	}
+
 	private void tick() {
 		// TODO game logic here (NPC, Player, other entities, Scores...)
-		synchronizeEntitis(networkReceive.getClientEntities());
+		// synchronizeEntitis(networkReceive.getClientEntities());
+
+		entities.get(0).setClientId(entities.get(0).getClientId() + 1);
 
 
 		if (timerSend.isTimeleft()) {
-			networkSend.sendUpdatedEntity(null);
-			networkSend.sendNewEntity(null);
+			PackageDTO dto = new PackageDTO(null);
+			dto.setTimestamp(System.currentTimeMillis());
+			networkSend.sendDTO(dto);
+			// for (Entity e : entities) {
+			// networkSend.sendDTO(e.toDTO());
+			// }
 			networkSend.sendNow();
 		}
 	}

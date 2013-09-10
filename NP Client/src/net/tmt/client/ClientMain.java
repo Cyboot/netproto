@@ -6,13 +6,13 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import net.tmt.client.engine.GameEngine;
-import net.tmt.client.network.NetworkManager;
+import net.tmt.client.network.NetworkManagerClient;
 
 
 public class ClientMain {
 
 	public static void main(final String[] args) {
-		NetworkManager nm = NetworkManager.getInstance();
+		NetworkManagerClient nm = NetworkManagerClient.getInstance();
 		nm.registerWithServer("127.0.0.1");
 
 
@@ -25,7 +25,7 @@ public class ClientMain {
 		frame.setResizable(false);
 
 		// TODO client config frame.setLocationRelativeTo(null); //
-		frame.setLocation(-1200, 50);
+		// frame.setLocation(-1200, 50);
 
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);

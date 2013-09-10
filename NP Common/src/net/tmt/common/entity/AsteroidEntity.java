@@ -5,7 +5,7 @@ import java.awt.Graphics;
 
 import net.tmt.Constants;
 import net.tmt.common.network.AsteroidDTO;
-import net.tmt.common.network.DTO;
+import net.tmt.common.network.EntityDTO;
 import net.tmt.common.util.Vector2d;
 
 public class AsteroidEntity extends Entity {
@@ -31,7 +31,7 @@ public class AsteroidEntity extends Entity {
 	}
 
 	@Override
-	public DTO toDTO() {
-		return new AsteroidDTO(pos, dir);
+	public EntityDTO toDTO() {
+		return new AsteroidDTO(super.toDTO());
 	}
 }

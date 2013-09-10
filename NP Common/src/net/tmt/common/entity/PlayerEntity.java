@@ -6,7 +6,7 @@ import java.awt.event.KeyEvent;
 
 import net.tmt.Constants;
 import net.tmt.client.engine.Controls;
-import net.tmt.common.network.DTO;
+import net.tmt.common.network.EntityDTO;
 import net.tmt.common.network.PlayerDTO;
 import net.tmt.common.util.Vector2d;
 
@@ -68,8 +68,8 @@ public class PlayerEntity extends Entity {
 	}
 
 	@Override
-	public DTO toDTO() {
-		return new PlayerDTO(pos, dir, color);
+	public EntityDTO toDTO() {
+		return new PlayerDTO(super.toDTO(), color);
 	}
 
 }

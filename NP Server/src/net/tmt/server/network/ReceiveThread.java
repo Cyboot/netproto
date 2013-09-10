@@ -24,7 +24,7 @@ public class ReceiveThread extends Thread {
 			this.in = new ObjectInputStream(connectionSocket.getInputStream());
 			this.out = new ObjectOutputStream(connectionSocket.getOutputStream());
 		} catch (Exception e) {
-			System.err.println("error in ReceiveThread for Client #" + this.clientData.id + ": " + e);
+			System.err.println("error in ReceiveThread for Client #" + this.clientData.getId() + ": " + e);
 		}
 	}
 
@@ -34,11 +34,11 @@ public class ReceiveThread extends Thread {
 			/* init */
 			ClientInitDTO ci_request = (ClientInitDTO) this.in.readObject();
 			if (ci_request.getClientId() == -1) {
-				ClientInitDTO ci_reply = new ClientInitDTO(this.clientData.id);
+				ClientInitDTO ci_reply = new ClientInitDTO(this.clientData.getId());
 				this.out.writeObject(ci_reply);
 				this.out.flush();
 
-				System.out.println("new client. id: " + this.clientData.id);
+				System.out.println("new client. id: " + this.clientData.getId());
 				while (true) {
 					DTO request = (DTO) this.in.readObject();
 					// TODO: handle further client requests
@@ -48,7 +48,7 @@ public class ReceiveThread extends Thread {
 				this.connectionSocket.close();
 			}
 		} catch (Exception e) {
-			System.err.println("error in ReceiveThread for Client #" + this.clientData.id + ": " + e);
+			System.err.println("error in ReceiveThread for Client #" + this.clientData.getId() + ": " + e);
 			e.printStackTrace();
 		}
 	}

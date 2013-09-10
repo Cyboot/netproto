@@ -1,8 +1,12 @@
 package net.tmt.common.util;
 
-public class Vector2d {
-	public double	x;
-	public double	y;
+import java.io.Serializable;
+
+public class Vector2d implements Serializable {
+	private static final long	serialVersionUID	= -6889125305964874168L;
+
+	public double				x;
+	public double				y;
 
 	public Vector2d() {
 	}

@@ -2,17 +2,25 @@ package net.tmt.common.network;
 
 import net.tmt.common.util.Vector2d;
 
-public abstract class EntityDTO extends DTO {
+public class EntityDTO extends DTO {
 	private static final long	serialVersionUID	= 2890375851920871553L;
 
 	private Vector2d			pos;
 	private Vector2d			dir;
 
 
-	public EntityDTO(final Vector2d pos, final Vector2d dir) {
-		super();
+	public EntityDTO(final long id, final long clientId, final long timestamp, final Vector2d pos, final Vector2d dir) {
+		super(id, clientId, timestamp);
 		this.pos = pos;
 		this.dir = dir;
+	}
+
+	public EntityDTO(final DTO dto, final Vector2d pos, final Vector2d dir) {
+		this(dto.getId(), dto.getClientId(), dto.getTimestamp(), pos, dir);
+	}
+
+	public EntityDTO(final DTO dto) {
+		this(dto.getId(), dto.getClientId(), dto.getTimestamp(), null, null);
 	}
 
 	public Vector2d getPos() {

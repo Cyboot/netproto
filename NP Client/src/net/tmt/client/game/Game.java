@@ -1,11 +1,12 @@
 package net.tmt.client.game;
 
 import java.awt.Graphics;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.tmt.Constants;
-import net.tmt.client.network.NetworkManager;
+import net.tmt.client.network.NetworkManagerClient;
 import net.tmt.client.network.NetworkReceive;
 import net.tmt.client.network.NetworkSend;
 import net.tmt.common.entity.AsteroidEntity;
@@ -22,24 +23,24 @@ public class Game {
 	private static Game		instance;
 
 	private CountdownTimer	timerSend		= new CountdownTimer(1000);
-	private NetworkSend		networkSend		= NetworkManager.getInstance();
-	private NetworkReceive	networkReceive;
+	private NetworkSend		networkSend		= NetworkManagerClient.getInstance();
+	private NetworkReceive	networkReceive	= NetworkManagerClient.getInstance();
 
 	private List<Entity>	entities		= new ArrayList<>();
 	private List<Entity>	killedEntities	= new ArrayList<>();
 	private PlayerEntity	player;
 
 	public Game() {
-		for (int i = 0; i < 100000; i++)
+		for (int i = 0; i < 10; i++)
 			entities.add(new AsteroidEntity(new Vector2d(WIDTH / 2, HEIGHT / 2), new Vector2d(Math.random() - 0.5, Math
 					.random() - 0.5)));
 		player = new PlayerEntity(new Vector2d(WIDTH / 2, HEIGHT / 2));
 	}
 
 	public void tick() {
-		// if (networkReceive.hasNewServerEntites()) {
-		// synchronizeEntities(networkReceive.getServerEntities());
-		// }
+		if (networkReceive.hasNewServerEntites()) {
+			synchronizeEntities(networkReceive.getServerEntities());
+		}
 
 		for (Entity e : entities) {
 			e.tick();
@@ -52,14 +53,20 @@ public class Game {
 
 		player.tick();
 
-		if (timerSend.isTimeleft()) {
-			networkSend.sendDTO(player.toDTO());
-			networkSend.sendNow();
-		}
+		// if (timerSend.isTimeleft()) {
+		// networkSend.sendDTO(player.toDTO());
+		// networkSend.sendNow();
+		// }
 	}
 
 	private void synchronizeEntities(final List<DTO> serverEntities) {
-		// TODO synchronize Entities
+		for (DTO dto : serverEntities) {
+			long id = dto.getId();
+			long clientId = dto.getClientId();
+			long timestamp = dto.getTimestamp();
+			System.out.println("Asteroid #" + id + " from c" + clientId + " @" + new Date(timestamp).toLocaleString());
+		}
+		System.out.println();
 	}
 
 	public void render(final Graphics g) {
