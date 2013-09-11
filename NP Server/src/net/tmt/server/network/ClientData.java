@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import net.tmt.common.network.DTO;
+import net.tmt.common.network.dtos.PackageDTO;
 
 
 public class ClientData {
-	private int					id;
+	private long				registeredID;
 	private ObjectOutputStream	out;
 	private Socket				socket;
 
-	public ClientData(final int id, final Socket clientSocket) {
-		this.setId(id);
+	public ClientData(final long currClientId, final Socket clientSocket) {
+		this.setId(currClientId);
 		this.socket = clientSocket;
 		try {
 			this.out = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -22,7 +22,8 @@ public class ClientData {
 		}
 	}
 
-	public synchronized void send(final DTO dto) {
+	public synchronized void send(final PackageDTO dto) {
+		dto.setRegisterClientID(registeredID);
 		try {
 			out.writeObject(dto);
 			out.flush();
@@ -32,11 +33,11 @@ public class ClientData {
 		}
 	}
 
-	public int getId() {
-		return id;
+	public long getId() {
+		return registeredID;
 	}
 
-	public void setId(final int id) {
-		this.id = id;
+	public void setId(final long id) {
+		this.registeredID = id;
 	}
 }

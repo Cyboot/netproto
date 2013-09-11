@@ -1,4 +1,4 @@
-package net.tmt.common.network;
+package net.tmt.common.network.dtos;
 
 
 public class AsteroidDTO extends EntityDTO {

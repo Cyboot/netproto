@@ -2,32 +2,43 @@ package net.tmt.common.entity;
 
 import java.awt.Graphics;
 
-import net.tmt.common.network.EntityDTO;
+import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.util.Vector2d;
 
 public abstract class Entity {
-	private static int	OWNER_ID;
+	private static long	CURRENT_ENTITY_ID	= 1000;
+	private static long	OWNER_ID;
 
-	private boolean		isAlive	= true;
+	private boolean		isAlive				= true;
 	protected Vector2d	pos;
 	protected Vector2d	dir;
 
-	private long		id;
+	private long		entityID;
 	private long		clientId;
+	private boolean		wasSendToServer		= false;
 
 	public Entity(final Vector2d pos, final Vector2d dir) {
 		this.pos = pos;
 		this.dir = dir;
 		clientId = OWNER_ID;
+		entityID = CURRENT_ENTITY_ID++;
 	}
 
+	/**
+	 * updates the Entity, must be called from server and client regardless of
+	 * the owner! it will call updateTick() if the caller is the owner of the
+	 * entity (additional computations can take place there)
+	 */
 	public void tick() {
 		pos.add(dir);
 
-		if (clientId == OWNER_ID)
+		if (isOwner())
 			updateTick();
 	}
 
+	/**
+	 * called from tick() if the caller is also the owner.
+	 */
 	protected abstract void updateTick();
 
 	public void kill() {
@@ -41,20 +52,21 @@ public abstract class Entity {
 	public abstract void render(Graphics g);
 
 	public EntityDTO toDTO() {
-		return new EntityDTO(id, clientId, System.currentTimeMillis(), pos, dir);
+		return new EntityDTO(entityID, clientId, System.currentTimeMillis(), pos, dir);
 	}
 
 	public void updateFromDTO(final EntityDTO dto) {
+		entityID = dto.getEntityID();
 		pos.set(dto.getPos());
 		dir.set(dto.getDir());
 	}
 
-	public long getId() {
-		return id;
+	public long getEntityID() {
+		return entityID;
 	}
 
-	public void setId(final long id) {
-		this.id = id;
+	public void setEntityID(final long entityID) {
+		this.entityID = entityID;
 	}
 
 	public long getClientId() {
@@ -65,11 +77,32 @@ public abstract class Entity {
 		this.clientId = clientId;
 	}
 
-	public static void setOWNER_ID(final int oWNER_ID) {
-		OWNER_ID = oWNER_ID;
-	}
-
 	public Vector2d getPos() {
 		return pos;
+	}
+
+	public static void setOWNER_ID(final long newClientID) {
+		OWNER_ID = newClientID;
+		System.out.println("ENTITY OWNER ID " + OWNER_ID);
+	}
+
+	public static long getOWNER_ID() {
+		return OWNER_ID;
+	}
+
+	public static void setCURRENT_ENTITY_ID(final long cURRENT_ENTITY_ID) {
+		CURRENT_ENTITY_ID = cURRENT_ENTITY_ID;
+	}
+
+	public boolean wasSendToServer() {
+		return wasSendToServer;
+	}
+
+	public void sendToServer() {
+		this.wasSendToServer = true;
+	}
+
+	public boolean isOwner() {
+		return clientId == OWNER_ID;
 	}
 }

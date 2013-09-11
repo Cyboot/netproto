@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import net.tmt.Constants;
-import net.tmt.common.network.AsteroidDTO;
-import net.tmt.common.network.EntityDTO;
+import net.tmt.common.network.dtos.AsteroidDTO;
+import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.util.CountdownTimer;
 import net.tmt.common.util.Vector2d;
 
@@ -30,6 +30,8 @@ public class AsteroidEntity extends Entity {
 	public void render(final Graphics g) {
 		g.setColor(Color.yellow);
 		g.fillRect(pos.x(), pos.y(), 10, 10);
+		g.setColor(Color.white);
+		g.drawString("" + getEntityID(), pos.x(), pos.y());
 	}
 
 	@Override

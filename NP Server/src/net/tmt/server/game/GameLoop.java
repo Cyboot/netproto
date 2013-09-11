@@ -1,6 +1,5 @@
 package net.tmt.server.game;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,73 +9,103 @@ import net.tmt.Constants;
 import net.tmt.common.entity.AsteroidEntity;
 import net.tmt.common.entity.Entity;
 import net.tmt.common.entity.PlayerEntity;
-import net.tmt.common.network.DTO;
-import net.tmt.common.network.EntityDTO;
-import net.tmt.common.network.PlayerDTO;
+import net.tmt.common.network.DTOReceiver;
+import net.tmt.common.network.DTOSender;
+import net.tmt.common.network.dtos.DTO;
+import net.tmt.common.network.dtos.EntityDTO;
+import net.tmt.common.network.dtos.PlayerDTO;
+import net.tmt.common.network.dtos.RegisterEntityDTO;
 import net.tmt.common.util.CountdownTimer;
 import net.tmt.common.util.Vector2d;
 import net.tmt.server.network.NetworkManagerServer;
-import net.tmt.server.network.NetworkReceive;
-import net.tmt.server.network.NetworkSend;
 
 public class GameLoop extends Thread {
 	public static final int		DELTA_TARGET		= 15;
 	private static final int	DELTA_TARGET_NANOS	= DELTA_TARGET * 1000 * 1000;
 
 	private float				cpuWorkload;
-	private NetworkSend			networkSend			= NetworkManagerServer.getInstance();
-	private NetworkReceive		networkReceive		= NetworkManagerServer.getInstance();
-	private CountdownTimer		timerSend			= new CountdownTimer(1000);
-	private List<Entity>		serverEntities		= new ArrayList<>();
-	private Map<Long, Entity>	clientEntityMap		= new HashMap<Long, Entity>();
+	private DTOSender			networkSend			= NetworkManagerServer.getInstance();
+	private DTOReceiver			networkReceive		= NetworkManagerServer.getInstance();
+	private CountdownTimer		timerSend			= new CountdownTimer(Constants.SERVER_UPDATE_DELTA);
+	private Map<Long, Entity>	entityMap			= new HashMap<Long, Entity>();
 
-	private long				currentEntityID		= 0;
-	private CountdownTimer		timerAddAsteroids	= new CountdownTimer(500);
+	private CountdownTimer		timerAddAsteroids	= new CountdownTimer(5000);
 
 	public GameLoop() {
+		AsteroidEntity entity = new AsteroidEntity(new Vector2d(Constants.WIDTH / 2, Constants.HEIGHT / 2),
+				new Vector2d());
+		addEntity(entity);
 	}
 
 	private void tick() {
-		// TODO game logic here (NPC, Player, other entities, Scores...)
-		synchronizeEntities(networkReceive.getClientEntities());
+		if (networkReceive.hasUnreadDTOs())
+			synchronizeEntities(networkReceive.getUnreadDTOs());
 
-		for (Entity e : serverEntities) {
-			e.tick();
-		}
-		for (Entry<Long, Entity> entry : clientEntityMap.entrySet()) {
-			System.out.println("Player #" + entry.getKey() + " " + entry.getValue().getPos());
+		for (Entry<Long, Entity> e : entityMap.entrySet()) {
+			e.getValue().tick();
 		}
 
+
+		// DEBUG syso player position
+		for (Entry<Long, Entity> entry : entityMap.entrySet()) {
+			if (entry.getValue() instanceof PlayerEntity)
+				System.out.println("Player #" + entry.getKey() + " " + entry.getValue().getPos());
+		}
+
+		// add new asteroid from time to time
 		if (timerAddAsteroids.isTimeleft()) {
 			AsteroidEntity entity = new AsteroidEntity(new Vector2d(Constants.WIDTH / 2, Constants.HEIGHT / 2),
 					new Vector2d());
-			entity.setId(currentEntityID++);
-
-			serverEntities.add(entity);
+			addEntity(entity);
 		}
 
 
 		if (timerSend.isTimeleft()) {
-			for (Entity e : serverEntities) {
-				networkSend.sendDTO(e.toDTO());
+			for (Entry<Long, Entity> e : entityMap.entrySet()) {
+				networkSend.sendDTO(e.getValue().toDTO());
 			}
 			networkSend.sendNow();
 		}
 	}
 
+	private void addEntity(final Entity entity) {
+		entityMap.put(entity.getEntityID(), entity);
+	}
+
+	/**
+	 * synchronize the newly received clientDTOs with own DTOs
+	 * 
+	 * @param clientEntities
+	 */
 	private void synchronizeEntities(final List<DTO> clientEntities) {
-		for (DTO dto : clientEntities) {
-			long id = dto.getId();
-			long clientId = dto.getClientId();
+		System.out.println(entityMap.size());
+		for (DTO d : clientEntities) {
+			if (d instanceof RegisterEntityDTO) {
+				RegisterEntityDTO regDto = (RegisterEntityDTO) d;
+				EntityDTO entityDTO = regDto.getDto();
+				long clientId = entityDTO.getClientId();
+
+				if (entityDTO instanceof PlayerDTO) {
+					PlayerEntity player = new PlayerEntity(entityDTO.getPos(), entityDTO.getDir());
+					player.setClientId(clientId);
+
+					long newID = player.getEntityID();
+					NetworkManagerServer.getInstance().addRemappedEntity(clientId, player.toDTO(),
+							entityDTO.getEntityID());
+					System.out.println("adding new Player with EntityID= " + entityDTO.getEntityID());
+					entityMap.put(newID, player);
+				}
+			}
+
+			if (d instanceof EntityDTO == false)
+				continue;
+
+			EntityDTO dto = (EntityDTO) d;
+			long id = dto.getEntityID();
 
 			if (dto instanceof PlayerDTO) {
-				if (clientEntityMap.containsKey(id)) {
-					clientEntityMap.get(id).updateFromDTO((EntityDTO) dto);
-				} else {
-					PlayerEntity player = new PlayerEntity(((PlayerDTO) dto).getPos());
-					player.setClientId(clientId);
-					clientEntityMap.put(id, player);
-					System.out.println("adding new Player #" + dto.getId());
+				if (entityMap.containsKey(id)) {
+					entityMap.get(id).updateFromDTO(dto);
 				}
 			}
 		}

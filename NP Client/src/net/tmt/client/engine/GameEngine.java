@@ -7,9 +7,7 @@ import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 
-import net.tmt.Constants;
 import net.tmt.client.game.Game;
-import net.tmt.common.entity.Entity;
 import net.tmt.common.util.CountdownTimer;
 import net.tmt.common.util.StringFormatter;
 
@@ -39,7 +37,6 @@ public class GameEngine extends Canvas {
 		// init things
 		game = Game.getInstance();
 		CountdownTimer.setDELTA_TARGET(DELTA_TARGET);
-		Entity.setOWNER_ID(Constants.CLIENT_ID);
 
 		final int DELTA_TARGET_NANOS = DELTA_TARGET * 1000 * 1000;
 

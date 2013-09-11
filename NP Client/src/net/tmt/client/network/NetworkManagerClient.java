@@ -7,16 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.tmt.Constants;
-import net.tmt.common.network.DTO;
-import net.tmt.common.network.PackageDTO;
+import net.tmt.client.game.Game;
+import net.tmt.common.network.DTOReceiver;
+import net.tmt.common.network.DTOSender;
+import net.tmt.common.network.dtos.DTO;
+import net.tmt.common.network.dtos.PackageDTO;
 
-public class NetworkManagerClient implements NetworkSend, NetworkReceive {
+public class NetworkManagerClient implements DTOSender, DTOReceiver {
 	private static NetworkManagerClient	instance;
+	private long						registeredClientId	= Constants.CLIENT_ID_UNREGISTERED;
 
-	private long						myClientId;
 	private String						hostname;
 
-	private List<DTO>					dtoToSend	= new ArrayList<>();
+	private List<DTO>					dtoToSend			= new ArrayList<>();
 
 	private Socket						clientSocket;
 	private ReceiveThread				rt;
@@ -28,25 +31,24 @@ public class NetworkManagerClient implements NetworkSend, NetworkReceive {
 		return instance;
 	}
 
-	public void setMyClientId(final long id) {
-		this.myClientId = id;
+	public void setRegisteredClientID(final long registeredClientID) {
+		if (registeredClientID != this.registeredClientId) {
+			Game.getInstance().updateClientID(registeredClientID, this.registeredClientId);
+			this.registeredClientId = registeredClientID;
+		}
 	}
+
 
 	public void registerWithServer(final String hostname) {
 		this.hostname = hostname;
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					clientSocket = new Socket(hostname, Constants.SERVER_PORT);
-					rt = new ReceiveThread(clientSocket.getInputStream());
-					rt.start();
-					out = new ObjectOutputStream(clientSocket.getOutputStream());
-				} catch (Exception e) {
-					System.err.println("unable to send init request: " + e);
-				}
-			}
-		}.start();
+		try {
+			clientSocket = new Socket(hostname, Constants.SERVER_PORT);
+			rt = new ReceiveThread(clientSocket.getInputStream());
+			rt.start();
+			out = new ObjectOutputStream(clientSocket.getOutputStream());
+		} catch (Exception e) {
+			System.err.println("unable to send init request: " + e);
+		}
 	}
 
 	@Override
@@ -61,7 +63,7 @@ public class NetworkManagerClient implements NetworkSend, NetworkReceive {
 			@Override
 			public void run() {
 				PackageDTO packageDTO = new PackageDTO(dtoToSend);
-				packageDTO.setClientId(Constants.CLIENT_ID);
+				packageDTO.setClientId(registeredClientId);
 
 				try {
 					out.writeObject(packageDTO);
@@ -78,13 +80,17 @@ public class NetworkManagerClient implements NetworkSend, NetworkReceive {
 	}
 
 	@Override
-	public boolean hasNewServerEntites() {
-		return rt.hasNewServerEntites();
+	public boolean hasUnreadDTOs() {
+		return rt.hasNewServerDTOs();
 	}
 
 	@Override
-	public List<DTO> getServerEntities() {
+	public List<DTO> getUnreadDTOs() {
 		return rt.getUnreadDTOs();
+	}
+
+	public long getRegisteredClientId() {
+		return registeredClientId;
 	}
 
 }

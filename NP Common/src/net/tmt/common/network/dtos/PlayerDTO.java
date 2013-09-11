@@ -1,4 +1,4 @@
-package net.tmt.common.network;
+package net.tmt.common.network.dtos;
 
 import java.awt.Color;
 

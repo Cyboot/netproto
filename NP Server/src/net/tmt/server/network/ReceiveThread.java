@@ -6,8 +6,9 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.tmt.common.network.DTO;
-import net.tmt.common.network.PackageDTO;
+import net.tmt.Constants;
+import net.tmt.common.network.dtos.DTO;
+import net.tmt.common.network.dtos.PackageDTO;
 
 public class ReceiveThread extends Thread {
 	private NetworkManagerServer	manager		= NetworkManagerServer.getInstance();
@@ -29,50 +30,19 @@ public class ReceiveThread extends Thread {
 				PackageDTO receivedDTO = (PackageDTO) in.readObject();
 				addReceivedDTO(receivedDTO);
 			} catch (ClassNotFoundException | IOException e) {
+				// DEBUG exit if error from client (disconnect)
+				System.exit(-1);
 				System.out.println("error while receiving Object: " + e);
 			}
 		}
 	}
 
 	private synchronized void addReceivedDTO(final PackageDTO receivedDTO) {
+		if (receivedDTO.getClientId() == Constants.CLIENT_ID_UNREGISTERED) {
+			receivedDTO.setDtos(new ArrayList<DTO>());
+		}
+
 		manager.putReceivedDTOs(receivedDTO);
 	}
-
-	// @Override
-	// public ReceiveThread(final ClientData cd, final Socket connectionSocket)
-	// {
-	// this.clientData = cd;
-	// this.connectionSocket = connectionSocket;
-	// try {
-	// this.in = new ObjectInputStream(connectionSocket.getInputStream());
-	// this.out = new ObjectOutputStream(connectionSocket.getOutputStream());
-	// } catch (Exception e) {
-	// System.err.println("error in ReceiveThread for Client #" +
-	// this.clientData.getId() + ": " + e);
-	// }
-	// }
-	// public void run() {
-	// try {
-	// /* init */
-	// ClientInitDTO ci_request = (ClientInitDTO) this.in.readObject();
-	// if (ci_request.getClientId() == -1) {
-	// ClientInitDTO ci_reply = new ClientInitDTO(this.clientData.getId());
-	// this.out.writeObject(ci_reply);
-	// this.out.flush();
-	//
-	// System.out.println("new client. id: " + this.clientData.getId());
-	// while (true) {
-	// DTO request = (DTO) this.in.readObject();
-	// }
-	// } else {
-	// System.err.println("misbehaving client, closing socket");
-	// this.connectionSocket.close();
-	// }
-	// } catch (Exception e) {
-	// System.err.println("error in ReceiveThread for Client #" +
-	// this.clientData.getId() + ": " + e);
-	// e.printStackTrace();
-	// }
-	// }
 
 }

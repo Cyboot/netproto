@@ -11,7 +11,7 @@ public class ServerMain {
 		// TODO read config
 
 		NetworkManagerServer nm = NetworkManagerServer.getInstance();
-		nm.acceptClients();
+		nm.startServer();
 
 		CountdownTimer.setDELTA_TARGET(GameLoop.DELTA_TARGET);
 		GameLoop loop = new GameLoop();

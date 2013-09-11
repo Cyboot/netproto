@@ -12,7 +12,7 @@ import net.tmt.Constants;
 
 public class AcceptThread extends Thread {
 	private ServerSocket	acceptSocket;
-	private int				currClientId	= 0;
+	private long			currClientId	= 100;
 
 	@Override
 	public void run() {
@@ -26,8 +26,8 @@ public class AcceptThread extends Thread {
 
 		while (true) {
 			try {
-				Socket connectionSocket = this.acceptSocket.accept();
-				ClientData cd = new ClientData(this.currClientId++, connectionSocket);
+				Socket connectionSocket = acceptSocket.accept();
+				ClientData cd = new ClientData(currClientId++, connectionSocket);
 				ReceiveThread rt = new ReceiveThread(connectionSocket.getInputStream());
 				rt.start();
 				NetworkManagerServer.getInstance().addClient(cd);
