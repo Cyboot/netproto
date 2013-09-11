@@ -55,8 +55,8 @@ public class ReceiveThread extends Thread {
 
 
 	private synchronized void addReceivedDTO(final PackageDTO packageDTO) {
-		System.out.println("received: id=" + packageDTO.getId() + ", size=" + packageDTO.getDtos().size());
-		// System.out.println(packageDTO.getDtos().get(0).getTimestamp());
+		// System.out.println("received: id=" + packageDTO.getId() + ", size=" +
+		// packageDTO.getDtos().size());
 		dtoReceived.addAll(packageDTO.getDtos());
 	}
 

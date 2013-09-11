@@ -22,10 +22,11 @@ public class ClientData {
 		}
 	}
 
-	public void send(final DTO dto) {
+	public synchronized void send(final DTO dto) {
 		try {
 			out.writeObject(dto);
 			out.flush();
+			out.reset();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

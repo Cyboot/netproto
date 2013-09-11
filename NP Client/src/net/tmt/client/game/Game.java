@@ -1,9 +1,11 @@
 package net.tmt.client.game;
 
 import java.awt.Graphics;
-import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import net.tmt.Constants;
 import net.tmt.client.network.NetworkManagerClient;
@@ -12,29 +14,29 @@ import net.tmt.client.network.NetworkSend;
 import net.tmt.common.entity.AsteroidEntity;
 import net.tmt.common.entity.Entity;
 import net.tmt.common.entity.PlayerEntity;
+import net.tmt.common.network.AsteroidDTO;
 import net.tmt.common.network.DTO;
+import net.tmt.common.network.EntityDTO;
 import net.tmt.common.util.CountdownTimer;
 import net.tmt.common.util.Vector2d;
 
 public class Game {
-	public static final int	WIDTH			= Constants.WIDTH;
-	public static final int	HEIGHT			= Constants.HEIGHT;
+	public static final int		WIDTH			= Constants.WIDTH;
+	public static final int		HEIGHT			= Constants.HEIGHT;
 
-	private static Game		instance;
+	private static Game			instance;
 
-	private CountdownTimer	timerSend		= new CountdownTimer(1000);
-	private NetworkSend		networkSend		= NetworkManagerClient.getInstance();
-	private NetworkReceive	networkReceive	= NetworkManagerClient.getInstance();
+	private CountdownTimer		timerSend		= new CountdownTimer(1000);
+	private NetworkSend			networkSend		= NetworkManagerClient.getInstance();
+	private NetworkReceive		networkReceive	= NetworkManagerClient.getInstance();
 
-	private List<Entity>	entities		= new ArrayList<>();
-	private List<Entity>	killedEntities	= new ArrayList<>();
-	private PlayerEntity	player;
+	private Map<Long, Entity>	entityMap		= new HashMap<Long, Entity>();
+	private List<Long>			killedEntities	= new ArrayList<>();
+	private PlayerEntity		player;
 
 	public Game() {
-		for (int i = 0; i < 10; i++)
-			entities.add(new AsteroidEntity(new Vector2d(WIDTH / 2, HEIGHT / 2), new Vector2d(Math.random() - 0.5, Math
-					.random() - 0.5)));
 		player = new PlayerEntity(new Vector2d(WIDTH / 2, HEIGHT / 2));
+		player.setClientId(Constants.CLIENT_ID);
 	}
 
 	public void tick() {
@@ -42,13 +44,13 @@ public class Game {
 			synchronizeEntities(networkReceive.getServerEntities());
 		}
 
-		for (Entity e : entities) {
-			e.tick();
-			if (!e.isAlive())
-				killedEntities.add(e);
+		for (Entry<Long, Entity> entry : entityMap.entrySet()) {
+			entry.getValue().tick();
+			if (!entry.getValue().isAlive())
+				killedEntities.add(entry.getKey());
 		}
 		// remove all dead entities
-		entities.removeAll(killedEntities);
+		// FIXME check if this is working
 		killedEntities.clear();
 
 		player.tick();
@@ -63,15 +65,26 @@ public class Game {
 		for (DTO dto : serverEntities) {
 			long id = dto.getId();
 			long clientId = dto.getClientId();
-			long timestamp = dto.getTimestamp();
-			System.out.println("Asteroid #" + id + " from c" + clientId + " @" + new Date(timestamp).toLocaleString());
+
+			if (dto instanceof AsteroidDTO) {
+				if (entityMap.containsKey(id)) {
+					entityMap.get(id).updateFromDTO((EntityDTO) dto);
+				} else {
+					AsteroidEntity entity = new AsteroidEntity(((AsteroidDTO) dto).getPos(),
+							((AsteroidDTO) dto).getDir());
+					entity.setClientId(clientId);
+					entityMap.put(id, entity);
+					System.out.println("adding new Asteroid from server #" + dto.getId());
+				}
+			}
 		}
 		System.out.println();
 	}
 
 	public void render(final Graphics g) {
-		for (Entity e : entities)
-			e.render(g);
+		for (Entry<Long, Entity> entry : entityMap.entrySet())
+			entry.getValue().render(g);
+
 		player.render(g);
 	}
 

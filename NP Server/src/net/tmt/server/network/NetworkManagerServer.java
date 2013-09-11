@@ -42,9 +42,9 @@ public class NetworkManagerServer implements NetworkSend {
 				final PackageDTO packetDTO = new PackageDTO(dtoToSend);
 				packetDTO.setId((long) (Math.random() * 100));
 				packetDTO.setTimestamp(System.currentTimeMillis());
-				// packetDTO.setDtos(new ArrayList<DTO>());
 
-				System.out.println("sending: id=" + packetDTO.getId() + ", size=" + packetDTO.getDtos().size());
+				// System.out.println("sending: id=" + packetDTO.getId() +
+				// ", size=" + packetDTO.getDtos().size());
 				for (ClientData c : clientDataList) {
 					c.send(packetDTO);
 				}

@@ -6,7 +6,7 @@ public class PlayerDTO extends EntityDTO {
 	private static final long	serialVersionUID	= 6886101631260300325L;
 	private Color				color;
 
-	public PlayerDTO(final DTO dto, final Color color) {
+	public PlayerDTO(final EntityDTO dto, final Color color) {
 		super(dto);
 		this.color = color;
 	}

@@ -15,12 +15,12 @@ public class EntityDTO extends DTO {
 		this.dir = dir;
 	}
 
-	public EntityDTO(final DTO dto, final Vector2d pos, final Vector2d dir) {
+	public EntityDTO(final EntityDTO dto, final Vector2d pos, final Vector2d dir) {
 		this(dto.getId(), dto.getClientId(), dto.getTimestamp(), pos, dir);
 	}
 
-	public EntityDTO(final DTO dto) {
-		this(dto.getId(), dto.getClientId(), dto.getTimestamp(), null, null);
+	public EntityDTO(final EntityDTO dto) {
+		this(dto.getId(), dto.getClientId(), dto.getTimestamp(), dto.getPos(), dto.getDir());
 	}
 
 	public Vector2d getPos() {

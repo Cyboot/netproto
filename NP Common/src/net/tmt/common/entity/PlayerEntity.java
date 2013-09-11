@@ -24,9 +24,7 @@ public class PlayerEntity extends Entity {
 	}
 
 	@Override
-	public void tick() {
-		super.tick();
-
+	public void updateTick() {
 		if (input.isKeyDown(KeyEvent.VK_UP) || input.isKeyDown(KeyEvent.VK_W)) {
 			dir.y += -accl;
 		}
