@@ -1,12 +1,18 @@
 package net.tmt.server.game;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import net.tmt.Constants;
 import net.tmt.common.entity.AsteroidEntity;
 import net.tmt.common.entity.Entity;
+import net.tmt.common.entity.PlayerEntity;
 import net.tmt.common.network.DTO;
+import net.tmt.common.network.EntityDTO;
+import net.tmt.common.network.PlayerDTO;
 import net.tmt.common.util.CountdownTimer;
 import net.tmt.common.util.Vector2d;
 import net.tmt.server.network.NetworkManagerServer;
@@ -19,28 +25,26 @@ public class GameLoop extends Thread {
 
 	private float				cpuWorkload;
 	private NetworkSend			networkSend			= NetworkManagerServer.getInstance();
-	private NetworkReceive		networkReceive;
+	private NetworkReceive		networkReceive		= NetworkManagerServer.getInstance();
 	private CountdownTimer		timerSend			= new CountdownTimer(1000);
-	private List<Entity>		entities			= new ArrayList<>();
+	private List<Entity>		serverEntities		= new ArrayList<>();
+	private Map<Long, Entity>	clientEntityMap		= new HashMap<Long, Entity>();
 
 	private long				currentEntityID		= 0;
 	private CountdownTimer		timerAddAsteroids	= new CountdownTimer(500);
 
 	public GameLoop() {
-		Entity e = new AsteroidEntity(new Vector2d(Constants.WIDTH / 2, Constants.HEIGHT / 2), new Vector2d());
-		Entity e2 = new AsteroidEntity(new Vector2d(Constants.WIDTH / 2, Constants.HEIGHT / 2), new Vector2d());
-		e.setId(currentEntityID++);
-		entities.add(e);
-		e2.setId(currentEntityID++);
-		entities.add(e2);
 	}
 
 	private void tick() {
 		// TODO game logic here (NPC, Player, other entities, Scores...)
-		// synchronizeEntitis(networkReceive.getClientEntities());
+		synchronizeEntities(networkReceive.getClientEntities());
 
-		for (Entity e : entities) {
+		for (Entity e : serverEntities) {
 			e.tick();
+		}
+		for (Entry<Long, Entity> entry : clientEntityMap.entrySet()) {
+			System.out.println("Player #" + entry.getKey() + " " + entry.getValue().getPos());
 		}
 
 		if (timerAddAsteroids.isTimeleft()) {
@@ -48,20 +52,34 @@ public class GameLoop extends Thread {
 					new Vector2d());
 			entity.setId(currentEntityID++);
 
-			entities.add(entity);
+			serverEntities.add(entity);
 		}
 
 
 		if (timerSend.isTimeleft()) {
-			for (Entity e : entities) {
+			for (Entity e : serverEntities) {
 				networkSend.sendDTO(e.toDTO());
 			}
 			networkSend.sendNow();
 		}
 	}
 
-	private void synchronizeEntitis(final List<DTO> clientEntities) {
+	private void synchronizeEntities(final List<DTO> clientEntities) {
+		for (DTO dto : clientEntities) {
+			long id = dto.getId();
+			long clientId = dto.getClientId();
 
+			if (dto instanceof PlayerDTO) {
+				if (clientEntityMap.containsKey(id)) {
+					clientEntityMap.get(id).updateFromDTO((EntityDTO) dto);
+				} else {
+					PlayerEntity player = new PlayerEntity(((PlayerDTO) dto).getPos());
+					player.setClientId(clientId);
+					clientEntityMap.put(id, player);
+					System.out.println("adding new Player #" + dto.getId());
+				}
+			}
+		}
 	}
 
 	@Override

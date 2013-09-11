@@ -26,7 +26,7 @@ public class Game {
 
 	private static Game			instance;
 
-	private CountdownTimer		timerSend		= new CountdownTimer(1000);
+	private CountdownTimer		timerSend		= new CountdownTimer(250);
 	private NetworkSend			networkSend		= NetworkManagerClient.getInstance();
 	private NetworkReceive		networkReceive	= NetworkManagerClient.getInstance();
 
@@ -55,10 +55,10 @@ public class Game {
 
 		player.tick();
 
-		// if (timerSend.isTimeleft()) {
-		// networkSend.sendDTO(player.toDTO());
-		// networkSend.sendNow();
-		// }
+		if (timerSend.isTimeleft()) {
+			networkSend.sendDTO(player.toDTO());
+			networkSend.sendNow();
+		}
 	}
 
 	private void synchronizeEntities(final List<DTO> serverEntities) {

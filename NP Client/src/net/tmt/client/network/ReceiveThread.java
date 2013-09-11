@@ -1,8 +1,8 @@
 package net.tmt.client.network;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +13,9 @@ public class ReceiveThread extends Thread {
 	private List<DTO>			dtoReceived	= new ArrayList<>();
 	private ObjectInputStream	in;
 
-	public ReceiveThread(final Socket connectionSocket) {
+	public ReceiveThread(final InputStream inputStream) {
 		try {
-			this.in = new ObjectInputStream(connectionSocket.getInputStream());
+			this.in = new ObjectInputStream(inputStream);
 		} catch (Exception e) {
 			System.err.println("error creating ReceiveThread");
 		}
@@ -31,22 +31,6 @@ public class ReceiveThread extends Thread {
 				System.out.println("error while receiving Object: " + e);
 			}
 		}
-
-		/* receive init reply */
-		// ClientInitDTO ci_reply;
-		// try {
-		// ci_reply = (ClientInitDTO) in.readObject();
-		// System.out.println("successfully registered, got client id " +
-		// ci_reply.getClientId());
-		// NetworkManagerClient.getInstance().setMyClientId(ci_reply.getClientId());
-		// while (true) {
-		// DTO request = (DTO) this.in.readObject();
-		// // TODO: handle further client requests
-		// System.out.println("received: " + request);
-		// }
-		// } catch (Exception e) {
-		// System.err.println("error in ReceiveThread");
-		// }
 	}
 
 	public synchronized boolean hasNewServerEntites() {
@@ -55,8 +39,6 @@ public class ReceiveThread extends Thread {
 
 
 	private synchronized void addReceivedDTO(final PackageDTO packageDTO) {
-		// System.out.println("received: id=" + packageDTO.getId() + ", size=" +
-		// packageDTO.getDtos().size());
 		dtoReceived.addAll(packageDTO.getDtos());
 	}
 

@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.tmt.Constants;
-import net.tmt.common.network.ClientInitDTO;
 import net.tmt.common.network.DTO;
+import net.tmt.common.network.PackageDTO;
 
 public class NetworkManagerClient implements NetworkSend, NetworkReceive {
 	private static NetworkManagerClient	instance;
@@ -17,7 +17,10 @@ public class NetworkManagerClient implements NetworkSend, NetworkReceive {
 	private String						hostname;
 
 	private List<DTO>					dtoToSend	= new ArrayList<>();
+
+	private Socket						clientSocket;
 	private ReceiveThread				rt;
+	private ObjectOutputStream			out;
 
 	public static NetworkManagerClient getInstance() {
 		if (instance == null)
@@ -32,19 +35,13 @@ public class NetworkManagerClient implements NetworkSend, NetworkReceive {
 	public void registerWithServer(final String hostname) {
 		this.hostname = hostname;
 		new Thread() {
-
 			@Override
 			public void run() {
 				try {
-					/* send init request */
-					ClientInitDTO ci_reqest = new ClientInitDTO(-1);
-					Socket clientSocket = new Socket(hostname, Constants.SERVER_PORT);
-					rt = new ReceiveThread(clientSocket);
+					clientSocket = new Socket(hostname, Constants.SERVER_PORT);
+					rt = new ReceiveThread(clientSocket.getInputStream());
 					rt.start();
-					// ObjectOutputStream out = new
-					// ObjectOutputStream(clientSocket.getOutputStream());
-					// out.writeObject(ci_reqest);
-					// out.flush();
+					out = new ObjectOutputStream(clientSocket.getOutputStream());
 				} catch (Exception e) {
 					System.err.println("unable to send init request: " + e);
 				}
@@ -63,17 +60,14 @@ public class NetworkManagerClient implements NetworkSend, NetworkReceive {
 		new Thread() {
 			@Override
 			public void run() {
+				PackageDTO packageDTO = new PackageDTO(dtoToSend);
+				packageDTO.setClientId(Constants.CLIENT_ID);
+
 				try {
-					Socket s = new Socket(hostname, 6789);
-
-					/* send DTO */
-					ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-
-					for (DTO dto : dtoToSend)
-						out.writeObject(dto);
+					out.writeObject(packageDTO);
 					out.flush();
+					out.reset();
 
-					s.close();
 					dtoToSend.clear();
 				} catch (IOException e) {
 					System.err.println("unable to send DTO: " + e);
