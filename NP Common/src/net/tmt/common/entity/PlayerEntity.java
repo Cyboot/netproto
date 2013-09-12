@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 
 import net.tmt.Constants;
 import net.tmt.client.engine.Controls;
+import net.tmt.client.util.ImageLoader;
 import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.network.dtos.PlayerDTO;
 import net.tmt.common.util.Vector2d;
@@ -13,7 +14,7 @@ import net.tmt.common.util.Vector2d;
 public class PlayerEntity extends Entity {
 	private static final double		accl	= 0.15;
 	private static final double		deaccl	= 0.98;
-	private static final int		SEIZE	= 16;
+	private static final int		RADIUS	= 16;
 	private static final Controls	input	= Controls.getInstance();
 
 	private Color					color;
@@ -30,21 +31,21 @@ public class PlayerEntity extends Entity {
 		dir.x *= deaccl;
 		dir.y *= deaccl;
 
-		if (pos.x > Constants.WIDTH - SEIZE / 2) {
+		if (pos.x > Constants.WIDTH - RADIUS) {
 			dir.x = 0;
-			pos.x = Constants.WIDTH - SEIZE / 2;
+			pos.x = Constants.WIDTH - RADIUS;
 		}
-		if (pos.y > Constants.HEIGHT - SEIZE / 2) {
+		if (pos.y > Constants.HEIGHT - RADIUS) {
 			dir.y = 0;
-			pos.y = Constants.HEIGHT - SEIZE / 2;
+			pos.y = Constants.HEIGHT - RADIUS;
 		}
-		if (pos.x < SEIZE / 2) {
+		if (pos.x < RADIUS) {
 			dir.x = 0;
-			pos.x = SEIZE / 2;
+			pos.x = RADIUS;
 		}
-		if (pos.y < SEIZE / 2) {
+		if (pos.y < RADIUS) {
 			dir.y = 0;
-			pos.y = SEIZE / 2;
+			pos.y = RADIUS;
 		}
 	}
 
@@ -66,10 +67,9 @@ public class PlayerEntity extends Entity {
 
 	@Override
 	public void render(final Graphics g) {
-		g.setColor(color);
-		g.fillOval(pos.x() - SEIZE / 2, pos.y() - SEIZE / 2, SEIZE, SEIZE);
+		g.drawImage(ImageLoader.point_red, pos.x() - RADIUS, pos.y() - RADIUS, null);
 
-		renderDebug(g, SEIZE / 2, 0);
+		renderDebug(g, RADIUS, 0);
 	}
 
 	@Override

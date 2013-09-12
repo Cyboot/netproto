@@ -17,7 +17,7 @@ public class ClientMain {
 		Entity.setCURRENT_ENTITY_ID(Long.MIN_VALUE);
 		Entity.setOWNER_ID(Constants.CLIENT_ID_UNREGISTERED);
 		NetworkManagerClient nm = NetworkManagerClient.getInstance();
-		nm.registerWithServer("127.0.0.1");
+		nm.registerWithServer(Constants.SERVER_IP);
 
 
 		GameEngine engine = new GameEngine();
