@@ -2,6 +2,7 @@ package net.tmt.common.entity;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 
 import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.util.Vector2d;
@@ -10,6 +11,7 @@ public abstract class Entity {
 	private static long	CURRENT_ENTITY_ID	= 1000;
 	private static long	OWNER_ID;
 
+	protected Image		img;
 	private boolean		isAlive				= true;
 	protected Vector2d	pos;
 	protected Vector2d	dir;

@@ -2,34 +2,53 @@ package net.tmt.common.entity;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 
 import net.tmt.Constants;
 import net.tmt.client.engine.Controls;
 import net.tmt.client.util.ImageLoader;
+import net.tmt.client.util.ImageUtils;
 import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.network.dtos.PlayerDTO;
 import net.tmt.common.util.Vector2d;
 
 public class PlayerEntity extends Entity {
-	private static final double		accl	= 0.15;
-	private static final double		deaccl	= 0.98;
-	private static final int		RADIUS	= 16;
-	private static final Controls	input	= Controls.getInstance();
+	private static final double		accl			= 0.15;
+	private static final double		deaccl			= 0.98;
+	private static final int		RADIUS			= 32;
+	private static final double		ROTATION_SPEED	= 0.05;
+	private static final double		HALT_SPEED		= 0.1;
+	private static final Controls	input			= Controls.getInstance();
 
+	private double					speed;
 	private Color					color;
+	private double					rotationAngle	= 0;
 
 	public PlayerEntity(final Vector2d pos, final Vector2d dir) {
 		super(pos, dir);
 		color = Color.green;
+		img = ImageLoader.ship_green;
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
 
-		dir.x *= deaccl;
-		dir.y *= deaccl;
+		double dx = Math.cos(rotationAngle) * speed;
+		double dy = Math.sin(rotationAngle) * speed;
+
+		if (rotationAngle > 2 * Math.PI)
+			rotationAngle -= 2 * Math.PI;
+		if (rotationAngle < 0)
+			rotationAngle += 2 * Math.PI;
+
+		System.out.println(rotationAngle);
+
+		dir.x = dx;
+		dir.y = dy;
+
+		speed *= deaccl;
 
 		if (pos.x > Constants.WIDTH - RADIUS) {
 			dir.x = 0;
@@ -52,22 +71,31 @@ public class PlayerEntity extends Entity {
 	@Override
 	public void updateTick() {
 		if (input.isKeyDown(KeyEvent.VK_UP) || input.isKeyDown(KeyEvent.VK_W)) {
-			dir.y += -accl;
+			speed += accl;
 		}
 		if (input.isKeyDown(KeyEvent.VK_DOWN) || input.isKeyDown(KeyEvent.VK_S)) {
-			dir.y += accl;
+			speed -= accl;
 		}
+
 		if (input.isKeyDown(KeyEvent.VK_LEFT) || input.isKeyDown(KeyEvent.VK_A)) {
-			dir.x += -accl;
+			rotationAngle -= ROTATION_SPEED;
+			speed += accl * 0.4;
 		}
 		if (input.isKeyDown(KeyEvent.VK_RIGHT) || input.isKeyDown(KeyEvent.VK_D)) {
-			dir.x += accl;
+			rotationAngle += ROTATION_SPEED;
+			speed += accl * 0.4;
 		}
 	}
 
 	@Override
 	public void render(final Graphics g) {
-		g.drawImage(ImageLoader.point_red, pos.x() - RADIUS, pos.y() - RADIUS, null);
+		Image drawImage = ImageUtils.rotateImage(img, Math.toDegrees(rotationAngle) + 90);
+		int width = drawImage.getWidth(null);
+
+		g.drawImage(drawImage, pos.x() - width / 2, pos.y() - width / 2, null);
+
+		g.setColor(Color.yellow);
+		g.fillOval(pos.x() - 4, pos.y() - 4, 8, 8);
 
 		renderDebug(g, RADIUS, 0);
 	}

@@ -8,7 +8,6 @@ import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 
 import net.tmt.client.game.Game;
-import net.tmt.client.util.ImageLoader;
 import net.tmt.common.util.CountdownTimer;
 import net.tmt.common.util.StringFormatter;
 
@@ -35,10 +34,8 @@ public class GameEngine extends Canvas {
 	}
 
 	public void start() {
-		// init things
-		ImageLoader.init();
-		game = Game.getInstance();
 		CountdownTimer.setDELTA_TARGET(DELTA_TARGET);
+		game = Game.getInstance();
 
 		final int DELTA_TARGET_NANOS = DELTA_TARGET * 1000 * 1000;
 

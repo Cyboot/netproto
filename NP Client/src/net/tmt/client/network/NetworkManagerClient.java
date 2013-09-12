@@ -59,10 +59,14 @@ public class NetworkManagerClient implements DTOSender, DTOReceiver {
 
 	@Override
 	public void sendNow() {
+		// DEBUG: ignore if disconnected from server
+		if (out == null)
+			return;
+
 		new Thread() {
 			@Override
 			public void run() {
-				PackageDTO packageDTO = new PackageDTO(dtoToSend);
+				PackageDTO packageDTO = new PackageDTO(dtoToSend);;
 				packageDTO.setClientId(registeredClientId);
 
 				try {
@@ -81,6 +85,10 @@ public class NetworkManagerClient implements DTOSender, DTOReceiver {
 
 	@Override
 	public boolean hasUnreadDTOs() {
+		// DEBUG: ignore if disconnected from server
+		if (rt == null)
+			return false;
+
 		return rt.hasNewServerDTOs();
 	}
 

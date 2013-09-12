@@ -12,10 +12,18 @@ public class ImageLoader {
 	public static BufferedImage	point_blue;
 	public static BufferedImage	point_red;
 
+	public static BufferedImage	ship_red;
+	public static BufferedImage	ship_blue;
+	public static BufferedImage	ship_green;
+
 	public static void init() {
 		point_green = loadImage("point_green.png");
 		point_blue = loadImage("point_blue.png");
 		point_red = loadImage("point_red.png");
+
+		ship_red = loadImage("ship_red.png");
+		ship_blue = loadImage("ship_blue.png");
+		ship_green = loadImage("ship_green.png");
 	}
 
 	private static BufferedImage loadImage(final String img) {

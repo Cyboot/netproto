@@ -127,9 +127,11 @@ public class Game {
 	}
 
 	public static Game getInstance() {
-		if (instance == null)
-			instance = new Game();
 		return instance;
+	}
+
+	public static void init() {
+		instance = new Game();
 	}
 
 	public void updateClientID(final long newClientID, final long oldClientID) {
