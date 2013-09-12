@@ -1,5 +1,6 @@
 package net.tmt.server.game;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,27 +10,26 @@ import net.tmt.Constants;
 import net.tmt.common.entity.AsteroidEntity;
 import net.tmt.common.entity.Entity;
 import net.tmt.common.entity.PlayerEntity;
-import net.tmt.common.network.DTOReceiver;
-import net.tmt.common.network.DTOSender;
 import net.tmt.common.network.dtos.DTO;
 import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.network.dtos.PlayerDTO;
 import net.tmt.common.network.dtos.RegisterEntityDTO;
+import net.tmt.common.network.dtos.ServerInfoDTO;
 import net.tmt.common.util.CountdownTimer;
+import net.tmt.common.util.StringFormatter;
 import net.tmt.common.util.Vector2d;
 import net.tmt.server.network.NetworkManagerServer;
 
 public class GameLoop extends Thread {
-	public static final int		DELTA_TARGET		= 15;
-	private static final int	DELTA_TARGET_NANOS	= DELTA_TARGET * 1000 * 1000;
+	public static final int			DELTA_TARGET		= 15;
+	private static final int		DELTA_TARGET_NANOS	= DELTA_TARGET * 1000 * 1000;
 
-	private float				cpuWorkload;
-	private DTOSender			networkSend			= NetworkManagerServer.getInstance();
-	private DTOReceiver			networkReceive		= NetworkManagerServer.getInstance();
-	private CountdownTimer		timerSend			= new CountdownTimer(Constants.SERVER_UPDATE_DELTA);
-	private Map<Long, Entity>	entityMap			= new HashMap<Long, Entity>();
+	private float					cpuWorkload;
+	private NetworkManagerServer	network				= NetworkManagerServer.getInstance();
+	private CountdownTimer			timerSend			= new CountdownTimer(Constants.SERVER_UPDATE_DELTA);
+	private Map<Long, Entity>		entityMap			= new HashMap<Long, Entity>();
 
-	private CountdownTimer		timerAddAsteroids	= new CountdownTimer(5000);
+	private CountdownTimer			timerAddAsteroids	= new CountdownTimer(5000);
 
 	public GameLoop() {
 		AsteroidEntity entity = new AsteroidEntity(new Vector2d(Constants.WIDTH / 2, Constants.HEIGHT / 2),
@@ -38,19 +38,22 @@ public class GameLoop extends Thread {
 	}
 
 	private void tick() {
-		if (networkReceive.hasUnreadDTOs())
-			synchronizeEntities(networkReceive.getUnreadDTOs());
+		if (network.hasUnreadDTOs())
+			synchronizeEntities(network.getUnreadDTOs());
+
+		if (network.hasClientDisconnected())
+			removeDisconnectedClientEntities(network.getClientDisconnectedID());
 
 		for (Entry<Long, Entity> e : entityMap.entrySet()) {
 			e.getValue().tick();
 		}
 
-
 		// DEBUG syso player position
-		for (Entry<Long, Entity> entry : entityMap.entrySet()) {
-			if (entry.getValue() instanceof PlayerEntity)
-				System.out.println("Player #" + entry.getKey() + " " + entry.getValue().getPos());
-		}
+		// for (Entry<Long, Entity> entry : entityMap.entrySet()) {
+		// if (entry.getValue() instanceof PlayerEntity)
+		// System.out.println("Player #" + entry.getKey() + " " +
+		// entry.getValue().getPos());
+		// }
 
 		// add new asteroid from time to time
 		if (timerAddAsteroids.isTimeleft()) {
@@ -61,11 +64,24 @@ public class GameLoop extends Thread {
 
 
 		if (timerSend.isTimeleft()) {
+			network.sendDTO(new ServerInfoDTO(StringFormatter.format(cpuWorkload)));
 			for (Entry<Long, Entity> e : entityMap.entrySet()) {
-				networkSend.sendDTO(e.getValue().toDTO());
+				network.sendDTO(e.getValue().toDTO());
 			}
-			networkSend.sendNow();
+			network.sendNow();
 		}
+	}
+
+	private void removeDisconnectedClientEntities(final long clientDisconnectedID) {
+		List<Entity> removedEntities = new ArrayList<>();
+
+		for (Entity e : entityMap.values()) {
+			if (e.getClientId() == clientDisconnectedID)
+				removedEntities.add(e);
+		}
+		entityMap.values().removeAll(removedEntities);
+		System.out.println("removed " + removedEntities.size() + " Entities from former Client #"
+				+ clientDisconnectedID);
 	}
 
 	private void addEntity(final Entity entity) {
@@ -78,7 +94,6 @@ public class GameLoop extends Thread {
 	 * @param clientEntities
 	 */
 	private void synchronizeEntities(final List<DTO> clientEntities) {
-		System.out.println(entityMap.size());
 		for (DTO d : clientEntities) {
 			if (d instanceof RegisterEntityDTO) {
 				RegisterEntityDTO regDto = (RegisterEntityDTO) d;

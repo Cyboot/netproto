@@ -79,7 +79,7 @@ public class GameEngine extends Canvas {
 
 		g.setColor(Color.yellow);
 		g.setFont(getFont());
-		g.drawString(cpuWorkloadText, Game.WIDTH - 30, 15);
+		g.drawString("CPU: " + cpuWorkloadText, Game.WIDTH - 60, 15);
 
 
 		g.dispose();

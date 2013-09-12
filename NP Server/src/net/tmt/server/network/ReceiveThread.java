@@ -3,6 +3,7 @@ package net.tmt.server.network;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +15,10 @@ public class ReceiveThread extends Thread {
 	private NetworkManagerServer	manager		= NetworkManagerServer.getInstance();
 	private List<DTO>				dtoReceived	= new ArrayList<>();
 	private ObjectInputStream		in;
+	private ClientData				cd;
 
-	public ReceiveThread(final InputStream inputStream) {
+	public ReceiveThread(final InputStream inputStream, final ClientData cd) {
+		this.cd = cd;
 		try {
 			this.in = new ObjectInputStream(inputStream);
 		} catch (Exception e) {
@@ -30,8 +33,11 @@ public class ReceiveThread extends Thread {
 				PackageDTO receivedDTO = (PackageDTO) in.readObject();
 				addReceivedDTO(receivedDTO);
 			} catch (ClassNotFoundException | IOException e) {
-				// DEBUG exit if error from client (disconnect)
-				System.exit(-1);
+				if (e instanceof SocketException) {
+					manager.disconnectClient(cd);
+					break;
+				}
+
 				System.out.println("error while receiving Object: " + e);
 			}
 		}

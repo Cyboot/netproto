@@ -1,7 +1,7 @@
 package net.tmt.client.game;
 
+import java.awt.Color;
 import java.awt.Graphics;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +20,7 @@ import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.network.dtos.PlayerDTO;
 import net.tmt.common.network.dtos.RegisterEntityDTO;
 import net.tmt.common.network.dtos.RemappedEntityDTO;
+import net.tmt.common.network.dtos.ServerInfoDTO;
 import net.tmt.common.util.CountdownTimer;
 import net.tmt.common.util.Vector2d;
 
@@ -29,13 +30,13 @@ public class Game {
 
 	private static Game			instance;
 
-	private CountdownTimer		timerSend		= new CountdownTimer(Constants.CLIENT_UPDATE_DELTA);
+	private CountdownTimer		timerSend		= new CountdownTimer(Constants.CLIENT_UPDATE_DELTA, 0);
 	private DTOSender			networkSend		= NetworkManagerClient.getInstance();
 	private DTOReceiver			networkReceive	= NetworkManagerClient.getInstance();
 
 	private Map<Long, Entity>	entityMap		= new HashMap<Long, Entity>();
-	private List<Long>			killedEntities	= new ArrayList<>();
 	private PlayerEntity		player;
+	private String				serverWorkLoad;
 
 
 	public Game() {
@@ -51,12 +52,7 @@ public class Game {
 
 		for (Entry<Long, Entity> entry : entityMap.entrySet()) {
 			entry.getValue().tick();
-			if (!entry.getValue().isAlive())
-				killedEntities.add(entry.getKey());
 		}
-		// remove all dead entities
-		// FIXME check if this is working
-		killedEntities.clear();
 
 		if (timerSend.isTimeleft()) {
 			for (Entry<Long, Entity> entry : entityMap.entrySet()) {
@@ -78,6 +74,10 @@ public class Game {
 
 	private void synchronizeEntities(final List<DTO> serverEntities) {
 		for (DTO d : serverEntities) {
+			if (d instanceof ServerInfoDTO) {
+				serverWorkLoad = ((ServerInfoDTO) d).getCpuWorkLoad();
+			}
+
 			if (d instanceof RemappedEntityDTO) {
 				long oldID = ((RemappedEntityDTO) d).getOldID();
 				EntityDTO dto = ((RemappedEntityDTO) d).getDto();
@@ -121,6 +121,9 @@ public class Game {
 	public void render(final Graphics g) {
 		for (Entry<Long, Entity> entry : entityMap.entrySet())
 			entry.getValue().render(g);
+
+		g.setColor(Color.yellow);
+		g.drawString("Server: " + serverWorkLoad, WIDTH - 70, 30);
 	}
 
 	public static Game getInstance() {

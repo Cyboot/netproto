@@ -69,8 +69,7 @@ public class PlayerEntity extends Entity {
 		g.setColor(color);
 		g.fillOval(pos.x() - SEIZE / 2, pos.y() - SEIZE / 2, SEIZE, SEIZE);
 
-		g.setColor(Color.white);
-		g.drawString(getEntityID() + "", pos.x(), pos.y());
+		renderDebug(g, SEIZE / 2, 0);
 	}
 
 	@Override

@@ -10,7 +10,8 @@ import net.tmt.common.util.CountdownTimer;
 import net.tmt.common.util.Vector2d;
 
 public class AsteroidEntity extends Entity {
-	private CountdownTimer	timerDirChange	= new CountdownTimer(5000, 0);
+	private static final int	SEIZE			= 10;
+	private CountdownTimer		timerDirChange	= new CountdownTimer(5000, 0);
 
 	public AsteroidEntity(final Vector2d pos, final Vector2d dir) {
 		super(pos, dir);
@@ -29,9 +30,9 @@ public class AsteroidEntity extends Entity {
 	@Override
 	public void render(final Graphics g) {
 		g.setColor(Color.yellow);
-		g.fillRect(pos.x(), pos.y(), 10, 10);
-		g.setColor(Color.white);
-		g.drawString("" + getEntityID(), pos.x(), pos.y());
+		g.fillRect(pos.x() - SEIZE / 2, pos.y() - SEIZE / 2, SEIZE, SEIZE);
+
+		renderDebug(g, SEIZE / 2, 0);
 	}
 
 	@Override

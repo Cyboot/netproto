@@ -29,7 +29,13 @@ public class ClientData {
 			out.flush();
 			out.reset();
 		} catch (IOException e) {
-			e.printStackTrace();
+			// TODO better solution? (disconnecting Clients from send method)
+			new Thread() {
+				@Override
+				public void run() {
+					NetworkManagerServer.getInstance().disconnectClient(ClientData.this);
+				};
+			}.start();
 		}
 	}
 

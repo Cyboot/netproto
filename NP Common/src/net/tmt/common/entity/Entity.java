@@ -1,5 +1,6 @@
 package net.tmt.common.entity;
 
+import java.awt.Color;
 import java.awt.Graphics;
 
 import net.tmt.common.network.dtos.EntityDTO;
@@ -45,6 +46,14 @@ public abstract class Entity {
 		isAlive = false;
 	}
 
+	protected void renderDebug(final Graphics g, final int offsetX, final int offsetY) {
+		g.setColor(Color.white);
+		g.drawString("#" + getEntityID(), pos.x() + offsetX, pos.y() + offsetY);
+		g.setColor(Color.white);
+		g.drawString("$" + getClientId() + "", pos.x() + offsetX, pos.y() + offsetY + 10);
+	}
+
+
 	public boolean isAlive() {
 		return isAlive;
 	}
@@ -83,7 +92,6 @@ public abstract class Entity {
 
 	public static void setOWNER_ID(final long newClientID) {
 		OWNER_ID = newClientID;
-		System.out.println("ENTITY OWNER ID " + OWNER_ID);
 	}
 
 	public static long getOWNER_ID() {

@@ -39,6 +39,6 @@ public class DTO implements Serializable {
 
 	@Override
 	public String toString() {
-		return "c#" + clientId;
+		return "c$" + clientId;
 	}
 }

@@ -28,7 +28,10 @@ public class AcceptThread extends Thread {
 			try {
 				Socket connectionSocket = acceptSocket.accept();
 				ClientData cd = new ClientData(currClientId++, connectionSocket);
-				ReceiveThread rt = new ReceiveThread(connectionSocket.getInputStream());
+
+				System.out.println("new Client #" + cd.getId() + " from " + connectionSocket.getInetAddress());
+
+				ReceiveThread rt = new ReceiveThread(connectionSocket.getInputStream(), cd);
 				rt.start();
 				NetworkManagerServer.getInstance().addClient(cd);
 			} catch (Exception e) {
