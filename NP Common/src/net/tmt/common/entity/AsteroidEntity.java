@@ -10,10 +10,37 @@ import net.tmt.common.util.CountdownTimer;
 import net.tmt.common.util.Vector2d;
 
 public class AsteroidEntity extends Entity {
-	private static final int	SEIZE			= 10;
-	private CountdownTimer		timerDirChange	= new CountdownTimer(5000, 0);
+	public static int		INIT_SIZE		= 20;
+	private int				size			= AsteroidEntity.INIT_SIZE;
+	private CountdownTimer	timerDirChange	= new CountdownTimer(5000, 0);
 
-	public AsteroidEntity(final Vector2d pos, final Vector2d dir) {
+	public void halfSize() {
+		this.size -= 1;
+		if (this.size == 0)
+			this.kill();
+	}
+
+	public void setSize(final int s) {
+		this.size = s;
+	}
+
+	public int getSize() {
+		return this.size;
+	}
+
+	@Override
+	public void kill() {
+		super.kill();
+		// TODO: spawn (two?) new, smaller asteroids
+	}
+
+	public boolean breakableBy(final Entity e) {
+		if (e instanceof AsteroidEntity || e instanceof PlayerEntity)
+			return true;
+		return false;
+	}
+
+	public AsteroidEntity(final Vector2d pos, final Vector2d dir, final int size) {
 		super(pos, dir);
 	}
 
@@ -30,14 +57,14 @@ public class AsteroidEntity extends Entity {
 	@Override
 	public void render(final Graphics g) {
 		g.setColor(Color.yellow);
-		g.fillRect(pos.x() - SEIZE / 2, pos.y() - SEIZE / 2, SEIZE, SEIZE);
+		g.fillRect(pos.x() - size / 2, pos.y() - size / 2, size, size);
 
-		renderDebug(g, SEIZE / 2, 0);
+		renderDebug(g, size / 2, 0);
 	}
 
 	@Override
 	public EntityDTO toDTO() {
-		return new AsteroidDTO(super.toDTO());
+		return new AsteroidDTO(super.toDTO(), this.size);
 	}
 
 	@Override

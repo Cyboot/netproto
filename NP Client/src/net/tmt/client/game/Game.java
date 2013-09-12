@@ -105,7 +105,7 @@ public class Game {
 			} else {
 				Entity entity = null;
 				if (dto instanceof AsteroidDTO) {
-					entity = new AsteroidEntity(dto.getPos(), dto.getDir());
+					entity = new AsteroidEntity(dto.getPos(), dto.getDir(), ((AsteroidDTO) dto).getSize());
 				}
 				if (dto instanceof PlayerDTO) {
 					entity = new PlayerEntity(dto.getPos(), dto.getDir());
