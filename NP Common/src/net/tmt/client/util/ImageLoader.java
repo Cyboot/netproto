@@ -15,6 +15,9 @@ public class ImageLoader {
 	public static BufferedImage	ship_red;
 	public static BufferedImage	ship_blue;
 	public static BufferedImage	ship_green;
+	public static BufferedImage	ship_engine_left;
+	public static BufferedImage	ship_engine_right;
+	public static BufferedImage	ship_engine_main;
 
 	public static void init() {
 		point_green = loadImage("point_green.png");
@@ -24,6 +27,10 @@ public class ImageLoader {
 		ship_red = loadImage("ship_red.png");
 		ship_blue = loadImage("ship_blue.png");
 		ship_green = loadImage("ship_green.png");
+
+		ship_engine_main = loadImage("ship_engine_main.png");
+		ship_engine_right = loadImage("ship_engine_right.png");
+		ship_engine_left = loadImage("ship_engine_left.png");
 	}
 
 	private static BufferedImage loadImage(final String img) {

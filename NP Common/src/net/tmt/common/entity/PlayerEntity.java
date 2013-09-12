@@ -25,10 +25,27 @@ public class PlayerEntity extends Entity {
 	private Color					color;
 	private double					rotationAngle	= 0;
 
+	private boolean					engineMain		= false;
+	private boolean					engineLeft		= false;
+	private boolean					engineRight		= false;
+
 	public PlayerEntity(final Vector2d pos, final Vector2d dir) {
 		super(pos, dir);
-		color = Color.green;
-		img = ImageLoader.ship_green;
+
+		switch ((int) (Math.random() * 3)) {
+		case 0:
+			color = Color.red;
+			img = ImageLoader.ship_red;
+			break;
+		case 1:
+			color = Color.green;
+			img = ImageLoader.ship_green;
+			break;
+		case 2:
+			color = Color.blue;
+			img = ImageLoader.ship_blue;
+			break;
+		}
 	}
 
 	@Override
@@ -42,8 +59,6 @@ public class PlayerEntity extends Entity {
 			rotationAngle -= 2 * Math.PI;
 		if (rotationAngle < 0)
 			rotationAngle += 2 * Math.PI;
-
-		System.out.println(rotationAngle);
 
 		dir.x = dx;
 		dir.y = dy;
@@ -70,8 +85,12 @@ public class PlayerEntity extends Entity {
 
 	@Override
 	public void updateTick() {
+		engineMain = false;
+		engineRight = false;
+		engineLeft = false;
 		if (input.isKeyDown(KeyEvent.VK_UP) || input.isKeyDown(KeyEvent.VK_W)) {
 			speed += accl;
+			engineMain = true;
 		}
 		if (input.isKeyDown(KeyEvent.VK_DOWN) || input.isKeyDown(KeyEvent.VK_S)) {
 			speed -= accl;
@@ -80,10 +99,12 @@ public class PlayerEntity extends Entity {
 		if (input.isKeyDown(KeyEvent.VK_LEFT) || input.isKeyDown(KeyEvent.VK_A)) {
 			rotationAngle -= ROTATION_SPEED;
 			speed += accl * 0.4;
+			engineRight = true;
 		}
 		if (input.isKeyDown(KeyEvent.VK_RIGHT) || input.isKeyDown(KeyEvent.VK_D)) {
 			rotationAngle += ROTATION_SPEED;
 			speed += accl * 0.4;
+			engineLeft = true;
 		}
 	}
 
@@ -92,17 +113,43 @@ public class PlayerEntity extends Entity {
 		Image drawImage = ImageUtils.rotateImage(img, Math.toDegrees(rotationAngle) + 90);
 		int width = drawImage.getWidth(null);
 
-		g.drawImage(drawImage, pos.x() - width / 2, pos.y() - width / 2, null);
+		if (engineLeft)
+			g.drawImage(ImageUtils.rotateImage(ImageLoader.ship_engine_left, Math.toDegrees(rotationAngle) + 90),
+					pos.x() - width / 2, pos.y() - width / 2, null);
+		if (engineRight)
+			g.drawImage(ImageUtils.rotateImage(ImageLoader.ship_engine_right, Math.toDegrees(rotationAngle) + 90),
+					pos.x() - width / 2, pos.y() - width / 2, null);
+		if (engineMain)
+			g.drawImage(ImageUtils.rotateImage(ImageLoader.ship_engine_main, Math.toDegrees(rotationAngle) + 90),
+					pos.x() - width / 2, pos.y() - width / 2, null);
 
-		g.setColor(Color.yellow);
-		g.fillOval(pos.x() - 4, pos.y() - 4, 8, 8);
+		g.drawImage(drawImage, pos.x() - width / 2, pos.y() - width / 2, null);
 
 		renderDebug(g, RADIUS, 0);
 	}
 
 	@Override
+	public void updateFromDTO(final EntityDTO dto) {
+		super.updateFromDTO(dto);
+
+		PlayerDTO pDTO = (PlayerDTO) dto;
+		this.color = pDTO.getColor();
+		this.engineLeft = pDTO.isEngineLeft();
+		this.engineRight = pDTO.isEngineRight();
+		this.engineMain = pDTO.isEngineMain();
+		this.rotationAngle = pDTO.getRotationAngle();
+
+		if (color == Color.green)
+			img = ImageLoader.ship_green;
+		if (color == Color.red)
+			img = ImageLoader.ship_red;
+		if (color == Color.blue)
+			img = ImageLoader.ship_blue;
+	}
+
+	@Override
 	public EntityDTO toDTO() {
-		return new PlayerDTO(super.toDTO(), color);
+		return new PlayerDTO(super.toDTO(), rotationAngle, color, engineMain, engineLeft, engineRight);
 	}
 
 }
