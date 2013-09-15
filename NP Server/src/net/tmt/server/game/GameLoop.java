@@ -37,6 +37,10 @@ public class GameLoop extends Thread {
 		addEntity(entity);
 	}
 
+	public Map<Long, Entity> getEntities() {
+		return this.entityMap;
+	}
+
 	private void tick() {
 		if (network.hasUnreadDTOs())
 			synchronizeEntities(network.getUnreadDTOs());
@@ -45,23 +49,7 @@ public class GameLoop extends Thread {
 			removeDisconnectedClientEntities(network.getClientDisconnectedID());
 
 		for (Entry<Long, Entity> e : entityMap.entrySet()) {
-			e.getValue().tick();
-			/* check collision for all asteroids */
-			if (e.getValue() instanceof AsteroidEntity) {
-				AsteroidEntity asteroid = (AsteroidEntity) e.getValue();
-				for (Entry<Long, Entity> o : entityMap.entrySet()) {
-					Entity other = o.getValue();
-					if (!o.equals(e) && asteroid.breakableBy(other)) {
-						if (Math.abs(asteroid.getPos().x) + 1 > Math.abs(other.getPos().x)
-								&& Math.abs(asteroid.getPos().x) < Math.abs(other.getPos().x) + 1
-								&& Math.abs(asteroid.getPos().y) + 1 > Math.abs(other.getPos().y)
-								&& Math.abs(asteroid.getPos().y) < Math.abs(other.getPos().y) + 1) {
-							((AsteroidEntity) e.getValue()).halfSize();
-							System.out.println("CRASH!!!");
-						}
-					}
-				}
-			}
+			e.getValue().tick(this.entityMap);
 		}
 
 		// DEBUG syso player position

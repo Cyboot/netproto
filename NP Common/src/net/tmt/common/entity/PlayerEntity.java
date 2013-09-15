@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.util.Map;
 
 import net.tmt.Constants;
 import net.tmt.client.engine.Controls;
@@ -49,8 +50,18 @@ public class PlayerEntity extends Entity {
 	}
 
 	@Override
-	public void tick() {
-		super.tick();
+	public int getWidth() {
+		return PlayerEntity.RADIUS * 2;
+	}
+
+	@Override
+	public int getHeight() {
+		return PlayerEntity.RADIUS * 2;
+	}
+
+	@Override
+	public void tick(final Map<Long, Entity> others) {
+		super.tick(others);
 
 		double dx = Math.cos(rotationAngle) * speed;
 		double dy = Math.sin(rotationAngle) * speed;

@@ -51,7 +51,7 @@ public class Game {
 		}
 
 		for (Entry<Long, Entity> entry : entityMap.entrySet()) {
-			entry.getValue().tick();
+			entry.getValue().tick(this.entityMap);
 		}
 
 		if (timerSend.isTimeleft()) {
