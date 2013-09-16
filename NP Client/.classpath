@@ -3,5 +3,15 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/NP Common"/>
+	<classpathentry kind="lib" path="/NP Common/lib/log4j-1.2.14.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/NP Common/lib/log4j-1.2.14-sources.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/NP Common/lib/kryonet-debug-2.12-all.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/NP Common/lib/kryonet-2.12.zip!/kryonet-2.12/javadoc"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

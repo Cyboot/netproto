@@ -12,23 +12,32 @@ import net.tmt.client.network.NetworkManagerClient;
 import net.tmt.client.util.ImageLoader;
 import net.tmt.common.entity.Entity;
 
+import org.apache.log4j.PropertyConfigurator;
+
 
 public class ClientMain {
 
 	public static void main(final String[] args) {
-		Entity.setCURRENT_ENTITY_ID(Long.MIN_VALUE);
+		// log4j
+		PropertyConfigurator.configureAndWatch("cfg/log4j.properties", 10 * 1000);
+
+		// Default IDs
+		Entity.setCURRENT_ENTITY_ID(Integer.MIN_VALUE);
 		Entity.setOWNER_ID(Constants.CLIENT_ID_UNREGISTERED);
-		// init things
+
+		// load images
 		ImageLoader.init();
+		// init game
 		Game.init();
 
-
+		// init network & connect with server
 		NetworkManagerClient nm = NetworkManagerClient.getInstance();
 		nm.registerWithServer(Constants.SERVER_IP);
 
 
-		GameEngine engine = new GameEngine();
 		JFrame frame = new JFrame("NetProto");
+		GameEngine.init(frame);
+		GameEngine engine = GameEngine.getInstance();
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(engine);
 		frame.setContentPane(panel);

@@ -25,6 +25,9 @@ public class EntityDTO extends DTO {
 		this(dto.getEntityID(), dto.getClientId(), dto.getTimestamp(), dto.getPos(), dto.getDir());
 	}
 
+	public EntityDTO() {
+	}
+
 	public Vector2d getPos() {
 		return pos;
 	}

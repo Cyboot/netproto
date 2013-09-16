@@ -1,5 +1,6 @@
 package net.tmt.server.network;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,21 +9,28 @@ import java.util.Map;
 import net.tmt.Constants;
 import net.tmt.common.network.DTOReceiver;
 import net.tmt.common.network.DTOSender;
+import net.tmt.common.network.KryoInit;
 import net.tmt.common.network.dtos.DTO;
-import net.tmt.common.network.dtos.EntityDTO;
-import net.tmt.common.network.dtos.PackageDTO;
-import net.tmt.common.network.dtos.RemappedEntityDTO;
+import net.tmt.common.network.dtos.PacketDTO;
+import net.tmt.common.util.TimeUtil;
+
+import org.apache.log4j.Logger;
+
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Server;
+import com.esotericsoftware.minlog.Log;
 
 
 public class NetworkManagerServer implements DTOSender, DTOReceiver {
-	private static NetworkManagerServer		instance;
+	private static Logger				logger					= Logger.getLogger(NetworkManagerServer.class);
+	private static NetworkManagerServer	instance;
 
-	private List<DTO>						dtoToSend				= new ArrayList<>();
-	private Map<Long, PackageDTO>			dtoPackageReceivedMap	= new HashMap<Long, PackageDTO>();
-	private Map<Long, RemappedEntityDTO>	remappedDTOMap			= new HashMap<>();
-	private List<ClientData>				clientDataList			= new ArrayList<ClientData>();
+	private PacketDTO					packageDTO				= new PacketDTO(new ArrayList<DTO>());
+	private Map<Long, PacketDTO>		dtoPackageReceivedMap	= new HashMap<Long, PacketDTO>();
 
-	private long							clientDisconnectedID	= Constants.CLIENT_ID_UNREGISTERED;
+	private Server						kryoServer;
+	private NetworkListener				listener;
+	private int							disconnectedClientID	= Constants.CLIENT_ID_UNREGISTERED;
 
 	public static NetworkManagerServer getInstance() {
 		if (instance == null)
@@ -31,84 +39,50 @@ public class NetworkManagerServer implements DTOSender, DTOReceiver {
 	}
 
 	public void startServer() {
-		AcceptThread at = new AcceptThread();
-		at.start();
-	}
+		try {
+			Log.set(Log.LEVEL_NONE);
+			kryoServer = new Server(1024 * 256, 1024 * 128);
+			KryoInit.init(kryoServer);
 
-	public synchronized void addClient(final ClientData cd) {
-		clientDataList.add(cd);
-	}
+			kryoServer.start();
+			kryoServer.bind(Constants.SERVER_PORT_TCP, Constants.SERVER_PORT_UDP);
 
-	public synchronized void disconnectClient(final ClientData cd) {
-		System.out.println("client $" + cd.getId() + " disconnected");
+			listener = new NetworkListener();
+			kryoServer.addListener(listener);
+			logger.info("started kryo server, accepting clients...");
+		} catch (IOException e) {
+			logger.warn("cannot start Server, Port already used? (" + e + ")");
+		}
 
-		// only disconnect one time
-		boolean contained = clientDataList.remove(cd);
-		if (contained)
-			clientDisconnectedID = cd.getId();
-	}
-
-	public long getClientDisconnectedID() {
-		long result = clientDisconnectedID;
-		clientDisconnectedID = Constants.CLIENT_ID_UNREGISTERED;
-		return result;
-	}
-
-	/**
-	 * @return true first time called when a client disconnects
-	 */
-	public synchronized boolean hasClientDisconnected() {
-		return clientDisconnectedID != Constants.CLIENT_ID_UNREGISTERED;
 	}
 
 	@Override
 	public void sendDTO(final DTO dto) {
-		dtoToSend.add(dto);
+		packageDTO.getDtos().add(dto);
 	}
 
 	@Override
 	public synchronized void sendNow() {
-		try {
-			// TODO check if sendNow should be in seperate Thread (was before,
-			// problems with ConcurrentModification on clientDataList)
-			// new Thread() {
-			// @Override
-			// public void run() {
-			final PackageDTO packetDTO = new PackageDTO(dtoToSend);
-			packetDTO.setTimestamp(System.currentTimeMillis());
+		packageDTO.setPacketNr(packageDTO.getPacketNr() + 1);
+		packageDTO.setTimestamp(TimeUtil.getSynchroTimestamp());
 
-			// FIXME ConcurrentModification here on Client disconnect
-			for (ClientData c : clientDataList) {
-				if (remappedDTOMap.containsKey(c.getId())) {
-					// there are remapped IDs for that client --> send
-					// modified copy of packageDTO to it
-					List<DTO> modifiedDtoToSend = new ArrayList<>(dtoToSend);
-					RemappedEntityDTO remappedEntityDTO = remappedDTOMap.get(c.getId());
-					modifiedDtoToSend.add(remappedEntityDTO);
-					System.out.println("sending remapped: " + remappedEntityDTO);
-					PackageDTO modifiedDTO = new PackageDTO(modifiedDtoToSend);
-					c.send(modifiedDTO);
-				} else {
-					// send packet normally
-					c.send(packetDTO);
-				}
-			}
-			dtoToSend.clear();
-			remappedDTOMap.clear();
-		} catch (Exception e) {
-			e.printStackTrace();
+		logger.trace("sending Paket #" + packageDTO.getPacketNr());
+
+		for (Connection c : kryoServer.getConnections()) {
+			if (c.isIdle())
+				c.sendTCP(packageDTO);
 		}
-		// };
-		// }.start();
+		// kryoServer.sendToAllUDP(packageDTO);
+
+		packageDTO.getDtos().clear();
 	}
 
 	/**
-	 * called from every ReceiveThread
 	 * 
 	 * @param receivedDTO
 	 *            the last package received from the client
 	 */
-	public synchronized void putReceivedDTOs(final PackageDTO receivedDTO) {
+	public synchronized void putReceivedDTOs(final PacketDTO receivedDTO) {
 		dtoPackageReceivedMap.put(receivedDTO.getClientId(), receivedDTO);
 	}
 
@@ -121,21 +95,25 @@ public class NetworkManagerServer implements DTOSender, DTOReceiver {
 	public synchronized List<DTO> getUnreadDTOs() {
 		List<DTO> dtos = new ArrayList<>();
 
-		for (PackageDTO dto : dtoPackageReceivedMap.values()) {
+		for (PacketDTO dto : dtoPackageReceivedMap.values()) {
 			dtos.addAll(dto.getDtos());
 		}
-
 		dtoPackageReceivedMap.clear();
 
 		return dtos;
 	}
 
-
-	public synchronized void addRemappedEntity(final long clientId, final EntityDTO entityDTO, final long oldID) {
-		RemappedEntityDTO dto = new RemappedEntityDTO(oldID, entityDTO);
-		dto.setClientId(clientId);
-		remappedDTOMap.put(clientId, dto);
+	public long getClientDisconnectedId() {
+		long result = disconnectedClientID;
+		disconnectedClientID = Constants.CLIENT_ID_UNREGISTERED;
+		return result;
 	}
 
+	public boolean hasClientDisconnected() {
+		return disconnectedClientID != Constants.CLIENT_ID_UNREGISTERED;
+	}
 
+	public void disconnectedClient(final int id) {
+		disconnectedClientID = id;
+	}
 }

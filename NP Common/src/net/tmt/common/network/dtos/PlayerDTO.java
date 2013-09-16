@@ -1,32 +1,44 @@
 package net.tmt.common.network.dtos;
 
-import java.awt.Color;
 
 public class PlayerDTO extends EntityDTO {
 	private static final long	serialVersionUID	= 6886101631260300325L;
-	private Color				color;
 
 	private boolean				engineMain			= false;
 	private boolean				engineLeft			= false;
 	private boolean				engineRight			= false;
+	private double				speed;
 	private double				rotationAngle;
+	private int					colorRBG;
 
-	public PlayerDTO(final EntityDTO dto, final double rotationAngle, final Color color, final boolean engineMain,
-			final boolean engineLeft, final boolean engineRight) {
+	public PlayerDTO() {
+	}
+
+	public PlayerDTO(final EntityDTO dto, final double speed, final double rotationAngle, final int colorRGB,
+			final boolean engineMain, final boolean engineLeft, final boolean engineRight) {
 		super(dto);
-		this.color = color;
+		this.speed = speed;
+		this.rotationAngle = rotationAngle;
+		this.colorRBG = colorRGB;
 		this.engineMain = engineMain;
 		this.engineLeft = engineLeft;
 		this.engineRight = engineRight;
-		this.rotationAngle = rotationAngle;
 	}
 
-	public Color getColor() {
-		return color;
+	public double getSpeed() {
+		return speed;
 	}
 
-	public void setColor(final Color color) {
-		this.color = color;
+	public void setSpeed(final double speed) {
+		this.speed = speed;
+	}
+
+	public int getColorRBG() {
+		return colorRBG;
+	}
+
+	public void setColorRBG(final int colorRBG) {
+		this.colorRBG = colorRBG;
 	}
 
 	public boolean isEngineMain() {

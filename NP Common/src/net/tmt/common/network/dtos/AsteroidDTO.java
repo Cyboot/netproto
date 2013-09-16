@@ -6,6 +6,10 @@ public class AsteroidDTO extends EntityDTO {
 
 	private int					size;
 
+	public AsteroidDTO() {
+		super();
+	}
+
 	public AsteroidDTO(final EntityDTO dto, final int size) {
 		super(dto);
 		this.size = size;

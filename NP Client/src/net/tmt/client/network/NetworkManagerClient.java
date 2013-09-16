@@ -1,104 +1,103 @@
 package net.tmt.client.network;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.tmt.Constants;
-import net.tmt.client.game.Game;
 import net.tmt.common.network.DTOReceiver;
 import net.tmt.common.network.DTOSender;
+import net.tmt.common.network.KryoInit;
 import net.tmt.common.network.dtos.DTO;
-import net.tmt.common.network.dtos.PackageDTO;
+import net.tmt.common.network.dtos.PacketDTO;
+import net.tmt.common.util.TimeUtil;
+
+import org.apache.log4j.Logger;
+
+import com.esotericsoftware.kryonet.Client;
+import com.esotericsoftware.minlog.Log;
 
 public class NetworkManagerClient implements DTOSender, DTOReceiver {
-	private static NetworkManagerClient	instance;
-	private long						registeredClientId	= Constants.CLIENT_ID_UNREGISTERED;
+	private static NetworkManagerClient	instance				= new NetworkManagerClient();
+	private static Logger				logger					= Logger.getLogger(NetworkManagerClient.class);
 
-	private String						hostname;
+	private long						registeredClientId		= Constants.CLIENT_ID_UNREGISTERED;
+	private Client						kryoClient;
 
-	private List<DTO>					dtoToSend			= new ArrayList<>();
+	private PacketDTO					packageDTO				= new PacketDTO(new ArrayList<DTO>());
 
-	private Socket						clientSocket;
-	private ReceiveThread				rt;
-	private ObjectOutputStream			out;
+	private PacketDTO					lastReceivedPackageDTO	= new PacketDTO(new ArrayList<DTO>());
+	private boolean						hasUnreadDTOs;
+	private long						lastPacketNr;
 
 	public static NetworkManagerClient getInstance() {
-		if (instance == null)
-			instance = new NetworkManagerClient();
 		return instance;
 	}
 
-	public void setRegisteredClientID(final long registeredClientID) {
-		if (registeredClientID != this.registeredClientId) {
-			Game.getInstance().updateClientID(registeredClientID, this.registeredClientId);
-			this.registeredClientId = registeredClientID;
-		}
-	}
-
-
-	public void registerWithServer(final String hostname) {
-		this.hostname = hostname;
+	public boolean registerWithServer(final String hostname) {
 		try {
-			clientSocket = new Socket(hostname, Constants.SERVER_PORT);
-			rt = new ReceiveThread(clientSocket.getInputStream());
-			rt.start();
-			out = new ObjectOutputStream(clientSocket.getOutputStream());
+			Log.set(Log.LEVEL_NONE);
+			kryoClient = new Client(1024 * 256, 1024 * 128);
+			KryoInit.init(kryoClient);
+
+			kryoClient.start();
+			kryoClient.connect(5000, hostname, Constants.SERVER_PORT_TCP, Constants.SERVER_PORT_UDP);
+
+			kryoClient.addListener(new NetworkListener());
 		} catch (Exception e) {
-			System.err.println("unable to send init request: " + e);
+			logger.warn("unable to start kryo-client: " + e);
+			return false;
 		}
+		return true;
 	}
 
 	@Override
 	public void sendDTO(final DTO dto) {
-		dtoToSend.add(dto);
+		// do not send data until having a valid clientID
+		if (registeredClientId == Constants.CLIENT_ID_UNREGISTERED)
+			return;
+		packageDTO.getDtos().add(dto);
 	}
 
 
 	@Override
 	public void sendNow() {
-		// DEBUG: ignore if disconnected from server
-		if (out == null)
+		// do not send data until having a valid clientID
+		if (registeredClientId == Constants.CLIENT_ID_UNREGISTERED)
 			return;
 
-		new Thread() {
-			@Override
-			public void run() {
-				PackageDTO packageDTO = new PackageDTO(dtoToSend);;
-				packageDTO.setClientId(registeredClientId);
+		packageDTO.setTimestamp(TimeUtil.getSynchroTimestamp());
 
-				try {
-					out.writeObject(packageDTO);
-					out.flush();
-					out.reset();
+		logger.trace("sending #" + packageDTO);
 
-					dtoToSend.clear();
-				} catch (IOException e) {
-					System.err.println("unable to send DTO: " + e);
-				}
-
-			};
-		}.start();
+		kryoClient.sendTCP(packageDTO);
+		packageDTO.getDtos().clear();
 	}
 
 	@Override
-	public boolean hasUnreadDTOs() {
-		// DEBUG: ignore if disconnected from server
-		if (rt == null)
-			return false;
-
-		return rt.hasNewServerDTOs();
+	public synchronized boolean hasUnreadDTOs() {
+		boolean result = hasUnreadDTOs;
+		hasUnreadDTOs = false;
+		return result;
 	}
 
 	@Override
-	public List<DTO> getUnreadDTOs() {
-		return rt.getUnreadDTOs();
+	public synchronized List<DTO> getUnreadDTOs() {
+		return lastReceivedPackageDTO.getDtos();
+	}
+
+	public synchronized void addReceivedPackageDTO(final PacketDTO dto) {
+		if (dto.getPacketNr() > lastPacketNr) {
+			hasUnreadDTOs = true;
+			lastReceivedPackageDTO = dto;
+			lastPacketNr = lastReceivedPackageDTO.getPacketNr();
+		}
 	}
 
 	public long getRegisteredClientId() {
 		return registeredClientId;
 	}
 
+	public void setRegisteredClientId(final long registeredClientId) {
+		this.registeredClientId = registeredClientId;
+	}
 }

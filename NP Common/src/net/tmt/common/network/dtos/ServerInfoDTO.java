@@ -5,6 +5,9 @@ public class ServerInfoDTO extends DTO {
 
 	private String				cpuWorkLoad;
 
+	public ServerInfoDTO() {
+	}
+
 	public ServerInfoDTO(final String cpuWorkLoad) {
 		super();
 		this.cpuWorkLoad = cpuWorkLoad;

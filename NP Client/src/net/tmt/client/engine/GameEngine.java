@@ -7,20 +7,25 @@ import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 
+import javax.swing.JFrame;
+
 import net.tmt.client.game.Game;
 import net.tmt.common.util.CountdownTimer;
 import net.tmt.common.util.StringFormatter;
 
 @SuppressWarnings("serial")
 public class GameEngine extends Canvas {
-	public static final int	DELTA_TARGET	= 15;
+	private static GameEngine	instance;
+	public static final int		DELTA_TARGET	= 15;
 
-	private Game			game;
-	private float			cpuWorkload;
-	private String			cpuWorkloadText	= "";
+	private JFrame				frame;
+	private Game				game;
+	private float				cpuWorkload;
+	private String				cpuWorkloadText	= "";
 
 
-	public GameEngine() {
+	private GameEngine(final JFrame frame) {
+		this.frame = frame;
 		// TODO: (maybe Windows specific problem): somehow the Canvas is 10
 		// pixel to big. No idea why
 		Dimension dim = new Dimension(Game.WIDTH - 10, Game.HEIGHT - 10);
@@ -101,5 +106,17 @@ public class GameEngine extends Canvas {
 
 		cpuWorkload = (float) timePassed / DELTA_TARGET_NANOS;
 		cpuWorkloadText = StringFormatter.format(cpuWorkload);
+	}
+
+	public static void init(final JFrame frame) {
+		instance = new GameEngine(frame);
+	}
+
+	public static GameEngine getInstance() {
+		return instance;
+	}
+
+	public void setTitle(final String str) {
+		frame.setTitle(str);
 	}
 }

@@ -103,10 +103,6 @@ public class PlayerEntity extends Entity {
 			speed += accl;
 			engineMain = true;
 		}
-		if (input.isKeyDown(KeyEvent.VK_DOWN) || input.isKeyDown(KeyEvent.VK_S)) {
-			speed -= accl;
-		}
-
 		if (input.isKeyDown(KeyEvent.VK_LEFT) || input.isKeyDown(KeyEvent.VK_A)) {
 			rotationAngle -= ROTATION_SPEED;
 			speed += accl * 0.4;
@@ -144,7 +140,8 @@ public class PlayerEntity extends Entity {
 		super.updateFromDTO(dto);
 
 		PlayerDTO pDTO = (PlayerDTO) dto;
-		this.color = pDTO.getColor();
+		this.speed = pDTO.getSpeed();
+		this.color = new Color(pDTO.getColorRBG());
 		this.engineLeft = pDTO.isEngineLeft();
 		this.engineRight = pDTO.isEngineRight();
 		this.engineMain = pDTO.isEngineMain();
@@ -160,7 +157,7 @@ public class PlayerEntity extends Entity {
 
 	@Override
 	public EntityDTO toDTO() {
-		return new PlayerDTO(super.toDTO(), rotationAngle, color, engineMain, engineLeft, engineRight);
+		return new PlayerDTO(super.toDTO(), speed, rotationAngle, color.getRGB(), engineMain, engineLeft, engineRight);
 	}
 
 }
