@@ -16,6 +16,10 @@ public class AsteroidEntity extends Entity {
 	private int				size			= AsteroidEntity.INIT_SIZE;
 	private CountdownTimer	timerDirChange	= new CountdownTimer(5000, 0);
 
+	protected AsteroidEntity(final Vector2d pos, final Vector2d dir, final int size) {
+		super(pos, dir);
+	}
+
 	public void halfSize() {
 		this.size -= 1;
 		if (this.size == 0)
@@ -51,10 +55,6 @@ public class AsteroidEntity extends Entity {
 		if (e instanceof AsteroidEntity || e instanceof PlayerEntity)
 			return true;
 		return false;
-	}
-
-	public AsteroidEntity(final Vector2d pos, final Vector2d dir, final int size) {
-		super(pos, dir);
 	}
 
 	@Override

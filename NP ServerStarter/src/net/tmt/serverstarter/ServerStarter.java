@@ -19,4 +19,8 @@ public class ServerStarter {
 		NetworkManagerServer server = NetworkManagerServer.getInstance();
 		return server != null && NetworkManagerServer.getInstance().isOnline();
 	}
+
+	public static boolean isClientServer() {
+		return NetworkManagerServer.getInstance() != null;
+	}
 }

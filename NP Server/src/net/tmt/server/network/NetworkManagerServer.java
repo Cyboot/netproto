@@ -33,8 +33,6 @@ public class NetworkManagerServer implements DTOSender, DTOReceiver {
 	private int							disconnectedClientID	= Constants.CLIENT_ID_UNREGISTERED;
 
 	public static NetworkManagerServer getInstance() {
-		if (instance == null)
-			instance = new NetworkManagerServer();
 		return instance;
 	}
 
@@ -118,5 +116,10 @@ public class NetworkManagerServer implements DTOSender, DTOReceiver {
 
 	public synchronized boolean isOnline() {
 		return kryoServer != null;
+	}
+
+	public static void init() {
+		if (instance == null)
+			instance = new NetworkManagerServer();
 	}
 }

@@ -10,7 +10,7 @@ import net.tmt.client.engine.GameEngine;
 import net.tmt.client.game.Game;
 import net.tmt.client.network.NetworkManagerClient;
 import net.tmt.client.util.ImageLoader;
-import net.tmt.common.entity.Entity;
+import net.tmt.common.entity.EntityFactory;
 import net.tmt.serverstarter.ServerStarter;
 
 import org.apache.log4j.Logger;
@@ -25,8 +25,8 @@ public class ClientMain {
 		PropertyConfigurator.configureAndWatch("cfg/log4j.properties", 10 * 1000);
 
 		// Default IDs
-		Entity.setCURRENT_ENTITY_ID(Integer.MIN_VALUE);
-		Entity.setOWNER_ID(Constants.CLIENT_ID_UNREGISTERED);
+		EntityFactory.getClientFactory().setCURRENT_ENTITY_ID(Integer.MIN_VALUE);
+		EntityFactory.getClientFactory().setOWNER_ID(Constants.CLIENT_ID_UNREGISTERED);
 
 		// load images
 		ImageLoader.init();

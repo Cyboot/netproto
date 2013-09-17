@@ -32,7 +32,7 @@ public class PlayerEntity extends Entity {
 	private boolean					engineLeft		= false;
 	private boolean					engineRight		= false;
 
-	public PlayerEntity(final Vector2d pos, final Vector2d dir) {
+	protected PlayerEntity(final Vector2d pos, final Vector2d dir) {
 		super(pos, dir);
 
 		switch ((int) (Math.random() * 3)) {

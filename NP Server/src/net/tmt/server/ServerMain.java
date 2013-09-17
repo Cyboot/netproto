@@ -13,6 +13,7 @@ public class ServerMain {
 		// TODO command line arguments
 		// TODO read config
 
+		NetworkManagerServer.init();
 		NetworkManagerServer nm = NetworkManagerServer.getInstance();
 		nm.startServer();
 

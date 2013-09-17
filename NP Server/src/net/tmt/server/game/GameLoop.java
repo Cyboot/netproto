@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import net.tmt.Constants;
 import net.tmt.common.entity.AsteroidEntity;
 import net.tmt.common.entity.Entity;
+import net.tmt.common.entity.EntityFactory;
 import net.tmt.common.entity.PlayerEntity;
 import net.tmt.common.network.dtos.DTO;
 import net.tmt.common.network.dtos.EntityDTO;
@@ -30,12 +31,13 @@ public class GameLoop extends Thread {
 	private NetworkManagerServer	network				= NetworkManagerServer.getInstance();
 	private CountdownTimer			timerSend			= new CountdownTimer(Constants.SERVER_UPDATE_DELTA);
 	private Map<Long, Entity>		entityMap			= new HashMap<Long, Entity>();
+	private EntityFactory			entityFactory		= EntityFactory.getServerFactory();
 
-	private CountdownTimer			timerAddAsteroids	= new CountdownTimer(50000);
+	private CountdownTimer			timerAddAsteroids	= new CountdownTimer(5000);
 
 	public GameLoop() {
-		AsteroidEntity entity = new AsteroidEntity(new Vector2d(Constants.WIDTH / 2, Constants.HEIGHT / 2),
-				new Vector2d(), AsteroidEntity.INIT_SIZE);
+		AsteroidEntity entity = entityFactory.createAsteroid(new Vector2d(Constants.WIDTH / 2, Constants.HEIGHT / 2),
+				new Vector2d(), AsteroidEntity.INIT_SIZE, Constants.SERVER_ID);
 		addEntity(entity);
 	}
 
@@ -56,8 +58,9 @@ public class GameLoop extends Thread {
 
 		// add new asteroid from time to time
 		if (timerAddAsteroids.isTimeleft()) {
-			AsteroidEntity entity = new AsteroidEntity(new Vector2d(Constants.WIDTH / 2, Constants.HEIGHT / 2),
-					new Vector2d(), AsteroidEntity.INIT_SIZE);
+			AsteroidEntity entity = entityFactory.createAsteroid(
+					new Vector2d(Constants.WIDTH / 2, Constants.HEIGHT / 2), new Vector2d(), AsteroidEntity.INIT_SIZE,
+					Constants.SERVER_ID);
 			addEntity(entity);
 		}
 
@@ -101,7 +104,7 @@ public class GameLoop extends Thread {
 
 			if (!entityMap.containsKey(id)) {
 				if (d instanceof PlayerDTO) {
-					PlayerEntity player = new PlayerEntity(dto.getPos(), dto.getDir());
+					PlayerEntity player = entityFactory.createPlayer(dto.getPos(), dto.getClientId());
 					player.setClientId(dto.getClientId());
 					player.setEntityID(dto.getEntityID());
 
@@ -120,7 +123,7 @@ public class GameLoop extends Thread {
 
 	@Override
 	public void run() {
-		Entity.setOWNER_ID(Constants.SERVER_ID);
+		entityFactory.setOWNER_ID(Constants.SERVER_ID);
 		while (true) {
 			long timeStart = System.nanoTime();
 
