@@ -10,6 +10,7 @@ import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.network.dtos.PacketDTO;
 import net.tmt.common.network.dtos.PlayerDTO;
 import net.tmt.common.network.dtos.ServerInfoDTO;
+import net.tmt.common.network.dtos.TimeSyncroDTO;
 import net.tmt.common.util.Vector2d;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -26,6 +27,7 @@ public class KryoInit {
 		kryo.register(PacketDTO.class);
 		kryo.register(PlayerDTO.class);
 		kryo.register(ServerInfoDTO.class);
+		kryo.register(TimeSyncroDTO.class);
 
 		kryo.register(Vector2d.class);
 		kryo.register(List.class);

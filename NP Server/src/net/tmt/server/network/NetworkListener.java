@@ -1,6 +1,7 @@
 package net.tmt.server.network;
 
 import net.tmt.common.network.dtos.PacketDTO;
+import net.tmt.common.network.dtos.TimeSyncroDTO;
 
 import org.apache.log4j.Logger;
 
@@ -17,6 +18,10 @@ public class NetworkListener extends Listener {
 		if (object instanceof PacketDTO) {
 			logger.trace("from client $" + connection.getID() + " #" + ((PacketDTO) object).getPacketNr());
 			manager.putReceivedDTOs((PacketDTO) object);
+		}
+		if (object instanceof TimeSyncroDTO) {
+			((TimeSyncroDTO) object).setServerTimestamp(System.currentTimeMillis());
+			connection.sendUDP(object);
 		}
 	}
 
