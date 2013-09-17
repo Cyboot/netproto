@@ -10,6 +10,6 @@ public interface Constants {
 
 	public static final int		SERVER_ID				= 0;
 	public static final int		CLIENT_ID_UNREGISTERED	= Integer.MIN_VALUE;
-	public static final int		SERVER_UPDATE_DELTA		= 100;
-	public static final int		CLIENT_UPDATE_DELTA		= 100;
+	public static final int		SERVER_UPDATE_DELTA		= 30;
+	public static final int		CLIENT_UPDATE_DELTA		= 30;
 }

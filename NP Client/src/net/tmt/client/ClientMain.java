@@ -11,11 +11,14 @@ import net.tmt.client.game.Game;
 import net.tmt.client.network.NetworkManagerClient;
 import net.tmt.client.util.ImageLoader;
 import net.tmt.common.entity.Entity;
+import net.tmt.serverstarter.ServerStarter;
 
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 
 public class ClientMain {
+	private static Logger	logger	= Logger.getLogger(ClientMain.class);
 
 	public static void main(final String[] args) {
 		// log4j
@@ -32,7 +35,22 @@ public class ClientMain {
 
 		// init network & connect with server
 		NetworkManagerClient nm = NetworkManagerClient.getInstance();
-		nm.registerWithServer(Constants.SERVER_IP);
+		boolean connected = nm.registerWithServer(Constants.SERVER_IP);
+
+		if (!connected) {
+			ServerStarter.startServer(null);
+			for (int i = 0; i < 50; i++) {
+				if (ServerStarter.isServerOnline()) {
+					logger.info("successfull started integrated server!");
+					break;
+				}
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+				}
+			}
+			nm.registerWithServer(Constants.SERVER_IP);
+		}
 
 
 		JFrame frame = new JFrame("NetProto");
@@ -52,5 +70,4 @@ public class ClientMain {
 		engine.start();
 
 	}
-
 }

@@ -1,6 +1,5 @@
 package net.tmt.common.entity;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
@@ -15,15 +14,18 @@ import net.tmt.common.network.dtos.PlayerDTO;
 import net.tmt.common.util.Vector2d;
 
 public class PlayerEntity extends Entity {
+	private static final int		COLOR_RED		= 0;
+	private static final int		COLOR_GREEN		= 1;
+	private static final int		COLOR_BLUE		= 2;
+
 	private static final double		accl			= 0.15;
 	private static final double		deaccl			= 0.98;
 	private static final int		RADIUS			= 32;
 	private static final double		ROTATION_SPEED	= 0.05;
-	private static final double		HALT_SPEED		= 0.1;
 	private static final Controls	input			= Controls.getInstance();
 
+	private int						colorID;
 	private double					speed;
-	private Color					color;
 	private double					rotationAngle	= 0;
 
 	private boolean					engineMain		= false;
@@ -34,16 +36,16 @@ public class PlayerEntity extends Entity {
 		super(pos, dir);
 
 		switch ((int) (Math.random() * 3)) {
-		case 0:
-			color = Color.red;
+		case COLOR_RED:
+			colorID = COLOR_RED;
 			img = ImageLoader.ship_red;
 			break;
-		case 1:
-			color = Color.green;
+		case COLOR_GREEN:
+			colorID = COLOR_GREEN;
 			img = ImageLoader.ship_green;
 			break;
-		case 2:
-			color = Color.blue;
+		case COLOR_BLUE:
+			colorID = COLOR_BLUE;
 			img = ImageLoader.ship_blue;
 			break;
 		}
@@ -141,23 +143,23 @@ public class PlayerEntity extends Entity {
 
 		PlayerDTO pDTO = (PlayerDTO) dto;
 		this.speed = pDTO.getSpeed();
-		this.color = new Color(pDTO.getColorRBG());
+		this.colorID = pDTO.getColorID();
 		this.engineLeft = pDTO.isEngineLeft();
 		this.engineRight = pDTO.isEngineRight();
 		this.engineMain = pDTO.isEngineMain();
 		this.rotationAngle = pDTO.getRotationAngle();
 
-		if (color == Color.green)
-			img = ImageLoader.ship_green;
-		if (color == Color.red)
+		if (colorID == COLOR_RED)
 			img = ImageLoader.ship_red;
-		if (color == Color.blue)
+		if (colorID == COLOR_GREEN)
+			img = ImageLoader.ship_green;
+		if (colorID == COLOR_BLUE)
 			img = ImageLoader.ship_blue;
 	}
 
 	@Override
 	public EntityDTO toDTO() {
-		return new PlayerDTO(super.toDTO(), speed, rotationAngle, color.getRGB(), engineMain, engineLeft, engineRight);
+		return new PlayerDTO(super.toDTO(), speed, rotationAngle, colorID, engineMain, engineLeft, engineRight);
 	}
 
 }
