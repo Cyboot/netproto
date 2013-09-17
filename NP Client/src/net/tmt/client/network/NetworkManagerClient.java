@@ -24,8 +24,8 @@ public class NetworkManagerClient implements DTOSender, DTOReceiver {
 	private Client						kryoClient;
 
 	private final PacketDTO				packageDTO				= new PacketDTO(new ArrayList<DTO>());
-
 	private PacketDTO					lastReceivedPackageDTO	= new PacketDTO(new ArrayList<DTO>());
+
 	private boolean						hasUnreadDTOs;
 	private long						lastPacketNr;
 
@@ -52,7 +52,7 @@ public class NetworkManagerClient implements DTOSender, DTOReceiver {
 
 	@Override
 	public void sendDTO(final DTO dto) {
-		// do not send data until having a valid clientID
+		// do not send data until we have a valid clientID
 		if (registeredClientId == Constants.CLIENT_ID_UNREGISTERED)
 			return;
 		packageDTO.getDtos().add(dto);
@@ -61,7 +61,7 @@ public class NetworkManagerClient implements DTOSender, DTOReceiver {
 
 	@Override
 	public void sendNow() {
-		// do not send data until having a valid clientID
+		// do not send data until we have a valid clientID
 		if (registeredClientId == Constants.CLIENT_ID_UNREGISTERED)
 			return;
 

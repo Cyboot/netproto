@@ -20,6 +20,7 @@ import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.network.dtos.PlayerDTO;
 import net.tmt.common.network.dtos.ServerInfoDTO;
 import net.tmt.common.util.CountdownTimer;
+import net.tmt.common.util.TimeUtil;
 import net.tmt.common.util.Vector2d;
 import net.tmt.serverstarter.ServerStarter;
 
@@ -85,12 +86,16 @@ public class Game {
 			EntityDTO dto = (EntityDTO) d;
 			long id = dto.getEntityID();
 			long clientId = dto.getClientId();
+			long timeDelay = TimeUtil.getSynchroTimestamp() - dto.getTimestamp();
+			logger.trace("Entity's last tick() was " + timeDelay + " ms ago.");
 
 
 			if (entityMap.containsKey(id)) {
-				// don't update owned entities
-				if (!entityMap.get(id).isOwner())
-					entityMap.get(id).updateFromDTO(dto);
+				// ignore own entities
+				if (entityMap.get(id).isOwner())
+					continue;
+
+				entityMap.get(id).updateFromDTO(dto);
 			} else {
 				Entity entity = null;
 				if (dto instanceof AsteroidDTO) {
@@ -100,9 +105,16 @@ public class Game {
 				if (dto instanceof PlayerDTO) {
 					entity = entityFactory.createPlayer(dto.getPos(), clientId);
 				}
+
 				entity.setEntityID(id);
 				entityMap.put(id, entity);
-				System.out.println("adding new Asteroid from server #" + dto.getEntityID());
+				logger.debug("adding new Entity from server #" + dto.getEntityID());
+			}
+
+			// the entities from the server is not perfectly up to date, so this
+			// updates them (like an extra tick() method)
+			for (int i = 0; i < timeDelay / Constants.DELTA_TARGET; i++) {
+				entityMap.get(id).tick(entityMap);
 			}
 		}
 	}

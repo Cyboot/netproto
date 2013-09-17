@@ -1,5 +1,6 @@
 package net.tmt.server;
 
+import net.tmt.Constants;
 import net.tmt.common.util.CountdownTimer;
 import net.tmt.server.game.GameLoop;
 import net.tmt.server.network.NetworkManagerServer;
@@ -17,7 +18,7 @@ public class ServerMain {
 		NetworkManagerServer nm = NetworkManagerServer.getInstance();
 		nm.startServer();
 
-		CountdownTimer.setDELTA_TARGET(GameLoop.DELTA_TARGET);
+		CountdownTimer.setDELTA_TARGET(Constants.DELTA_TARGET);
 		GameLoop loop = new GameLoop();
 		loop.start();
 	}

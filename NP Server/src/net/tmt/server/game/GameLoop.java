@@ -23,8 +23,7 @@ import net.tmt.server.network.NetworkManagerServer;
 import org.apache.log4j.Logger;
 
 public class GameLoop extends Thread {
-	public static final int			DELTA_TARGET		= 15;
-	private static final int		DELTA_TARGET_NANOS	= DELTA_TARGET * 1000 * 1000;
+	private static final int		DELTA_TARGET_NANOS	= Constants.DELTA_TARGET * 1000 * 1000;
 	private static Logger			logger				= Logger.getLogger(GameLoop.class);
 
 	private float					cpuWorkload;
@@ -33,12 +32,9 @@ public class GameLoop extends Thread {
 	private Map<Long, Entity>		entityMap			= new HashMap<Long, Entity>();
 	private EntityFactory			entityFactory		= EntityFactory.getServerFactory();
 
-	private CountdownTimer			timerAddAsteroids	= new CountdownTimer(5000);
+	private CountdownTimer			timerAddAsteroids	= new CountdownTimer(500000);
 
 	public GameLoop() {
-		AsteroidEntity entity = entityFactory.createAsteroid(new Vector2d(Constants.WIDTH / 2, Constants.HEIGHT / 2),
-				new Vector2d(), AsteroidEntity.INIT_SIZE, Constants.SERVER_ID);
-		addEntity(entity);
 	}
 
 	public Map<Long, Entity> getEntities() {

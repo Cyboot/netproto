@@ -6,6 +6,7 @@ import java.awt.Image;
 import java.util.Map;
 
 import net.tmt.common.network.dtos.EntityDTO;
+import net.tmt.common.util.TimeUtil;
 import net.tmt.common.util.Vector2d;
 
 import org.apache.log4j.Logger;
@@ -81,7 +82,7 @@ public abstract class Entity {
 	public abstract void render(Graphics g);
 
 	public EntityDTO toDTO() {
-		return new EntityDTO(entityID, clientId, System.currentTimeMillis(), pos, dir);
+		return new EntityDTO(entityID, clientId, TimeUtil.getSynchroTimestamp(), pos, dir);
 	}
 
 	public void updateFromDTO(final EntityDTO dto) {

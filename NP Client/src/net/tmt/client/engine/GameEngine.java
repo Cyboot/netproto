@@ -9,6 +9,7 @@ import java.awt.image.BufferStrategy;
 
 import javax.swing.JFrame;
 
+import net.tmt.Constants;
 import net.tmt.client.game.Game;
 import net.tmt.common.util.CountdownTimer;
 import net.tmt.common.util.StringFormatter;
@@ -16,12 +17,13 @@ import net.tmt.common.util.StringFormatter;
 @SuppressWarnings("serial")
 public class GameEngine extends Canvas {
 	private static GameEngine	instance;
-	public static final int		DELTA_TARGET	= 15;
+
+	private static final int	TICK_RENDER_RATIO	= 2;
 
 	private JFrame				frame;
 	private Game				game;
 	private float				cpuWorkload;
-	private String				cpuWorkloadText	= "";
+	private String				cpuWorkloadText		= "";
 
 
 	private GameEngine(final JFrame frame) {
@@ -39,10 +41,10 @@ public class GameEngine extends Canvas {
 	}
 
 	public void start() {
-		CountdownTimer.setDELTA_TARGET(DELTA_TARGET);
+		CountdownTimer.setDELTA_TARGET(Constants.DELTA_TARGET);
 		game = Game.getInstance();
 
-		final int DELTA_TARGET_NANOS = DELTA_TARGET * 1000 * 1000;
+		final int DELTA_TARGET_NANOS = Constants.DELTA_TARGET * 1000 * 1000 * TICK_RENDER_RATIO;
 
 		while (true) {
 			long timeStart = System.nanoTime();
@@ -54,7 +56,8 @@ public class GameEngine extends Canvas {
 			}
 
 			// ##### tick and render #####
-			tick();
+			for (int i = 0; i < TICK_RENDER_RATIO; i++)
+				tick();
 			render(bs.getDrawGraphics());
 
 			if (bs != null)

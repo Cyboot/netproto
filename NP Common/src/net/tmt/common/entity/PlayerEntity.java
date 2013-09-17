@@ -18,7 +18,7 @@ public class PlayerEntity extends Entity {
 	private static final int		COLOR_GREEN		= 1;
 	private static final int		COLOR_BLUE		= 2;
 
-	private static final double		accl			= 0.15;
+	private static final double		accl			= 0.10;
 	private static final double		deaccl			= 0.98;
 	private static final int		RADIUS			= 32;
 	private static final double		ROTATION_SPEED	= 0.05;
