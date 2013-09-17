@@ -141,6 +141,7 @@ public class PlayerEntity extends Entity {
 	public void updateFromDTO(final EntityDTO dto) {
 		super.updateFromDTO(dto);
 
+
 		PlayerDTO pDTO = (PlayerDTO) dto;
 		this.speed = pDTO.getSpeed();
 		this.colorID = pDTO.getColorID();

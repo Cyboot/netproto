@@ -51,9 +51,6 @@ public class Game {
 	}
 
 	public void tick() {
-		if (network.hasUnreadDTOs()) {
-			synchronizeEntities(network.getUnreadDTOs());
-		}
 		if (!hasUpdatedEntityID && network.getRegisteredClientId() != Constants.CLIENT_ID_UNREGISTERED) {
 			hasUpdatedEntityID = true;
 			updateClientID(network.getRegisteredClientId(), Constants.CLIENT_ID_UNREGISTERED);
@@ -64,6 +61,9 @@ public class Game {
 			e.tick(this.entityMap);
 		}
 
+		if (network.hasUnreadDTOs()) {
+			synchronizeEntities(network.getUnreadDTOs());
+		}
 		if (timerSend.isTimeleft()) {
 			for (Entity e : entityMap.values()) {
 				if (e.isOwner()) {
@@ -87,6 +87,10 @@ public class Game {
 			long id = dto.getEntityID();
 			long clientId = dto.getClientId();
 			long timeDelay = TimeUtil.getSynchroTimestamp() - dto.getTimestamp();
+
+			if (timeDelay > 40)
+				logger.debug("Delay: " + timeDelay);
+
 			logger.trace("Entity's last tick() was " + timeDelay + " ms ago.");
 
 
@@ -113,7 +117,7 @@ public class Game {
 
 			// the entities from the server is not perfectly up to date, so this
 			// updates them (like an extra tick() method)
-			for (int i = 0; i < timeDelay / Constants.DELTA_TARGET; i++) {
+			for (int i = 1; i < timeDelay / Constants.DELTA_TARGET; i++) {
 				entityMap.get(id).tick(entityMap);
 			}
 		}
