@@ -25,8 +25,8 @@ public class NetworkManagerServer implements DTOSender, DTOReceiver {
 	private static Logger				logger					= Logger.getLogger(NetworkManagerServer.class);
 	private static NetworkManagerServer	instance;
 
-	private PacketDTO					packageDTO				= new PacketDTO(new ArrayList<DTO>());
-	private Map<Long, PacketDTO>		dtoPackageReceivedMap	= new HashMap<Long, PacketDTO>();
+	private final PacketDTO				packageDTO				= new PacketDTO(new ArrayList<DTO>());
+	private final Map<Long, PacketDTO>	dtoPackageReceivedMap	= new HashMap<Long, PacketDTO>();
 
 	private Server						kryoServer;
 	private NetworkListener				listener;
@@ -38,7 +38,7 @@ public class NetworkManagerServer implements DTOSender, DTOReceiver {
 		return instance;
 	}
 
-	public void startServer() {
+	public synchronized void startServer() {
 		try {
 			Log.set(Log.LEVEL_NONE);
 			kryoServer = new Server(1024 * 256, 1024 * 128);
@@ -53,7 +53,6 @@ public class NetworkManagerServer implements DTOSender, DTOReceiver {
 		} catch (IOException e) {
 			logger.warn("cannot start Server, Port already used? (" + e + ")");
 		}
-
 	}
 
 	@Override
@@ -70,7 +69,7 @@ public class NetworkManagerServer implements DTOSender, DTOReceiver {
 
 		for (Connection c : kryoServer.getConnections()) {
 			if (c.isIdle())
-				c.sendTCP(packageDTO);
+				c.sendUDP(packageDTO);
 		}
 		// kryoServer.sendToAllUDP(packageDTO);
 
@@ -115,5 +114,9 @@ public class NetworkManagerServer implements DTOSender, DTOReceiver {
 
 	public void disconnectedClient(final int id) {
 		disconnectedClientID = id;
+	}
+
+	public synchronized boolean isOnline() {
+		return kryoServer != null;
 	}
 }

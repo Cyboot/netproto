@@ -23,7 +23,7 @@ public class NetworkManagerClient implements DTOSender, DTOReceiver {
 	private long						registeredClientId		= Constants.CLIENT_ID_UNREGISTERED;
 	private Client						kryoClient;
 
-	private PacketDTO					packageDTO				= new PacketDTO(new ArrayList<DTO>());
+	private final PacketDTO				packageDTO				= new PacketDTO(new ArrayList<DTO>());
 
 	private PacketDTO					lastReceivedPackageDTO	= new PacketDTO(new ArrayList<DTO>());
 	private boolean						hasUnreadDTOs;
@@ -69,7 +69,7 @@ public class NetworkManagerClient implements DTOSender, DTOReceiver {
 
 		logger.trace("sending #" + packageDTO);
 
-		kryoClient.sendTCP(packageDTO);
+		kryoClient.sendUDP(packageDTO);
 		packageDTO.getDtos().clear();
 	}
 

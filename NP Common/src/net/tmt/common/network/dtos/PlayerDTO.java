@@ -9,17 +9,17 @@ public class PlayerDTO extends EntityDTO {
 	private boolean				engineRight			= false;
 	private double				speed;
 	private double				rotationAngle;
-	private int					colorRBG;
+	private int					colorID;
 
 	public PlayerDTO() {
 	}
 
-	public PlayerDTO(final EntityDTO dto, final double speed, final double rotationAngle, final int colorRGB,
+	public PlayerDTO(final EntityDTO dto, final double speed, final double rotationAngle, final int colorID,
 			final boolean engineMain, final boolean engineLeft, final boolean engineRight) {
 		super(dto);
 		this.speed = speed;
 		this.rotationAngle = rotationAngle;
-		this.colorRBG = colorRGB;
+		this.colorID = colorID;
 		this.engineMain = engineMain;
 		this.engineLeft = engineLeft;
 		this.engineRight = engineRight;
@@ -33,12 +33,12 @@ public class PlayerDTO extends EntityDTO {
 		this.speed = speed;
 	}
 
-	public int getColorRBG() {
-		return colorRBG;
+	public int getColorID() {
+		return colorID;
 	}
 
-	public void setColorRBG(final int colorRBG) {
-		this.colorRBG = colorRBG;
+	public void setColorID(final int colorID) {
+		this.colorID = colorID;
 	}
 
 	public boolean isEngineMain() {

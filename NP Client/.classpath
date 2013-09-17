@@ -13,5 +13,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/NP Common/lib/kryonet-2.12.zip!/kryonet-2.12/javadoc"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/NP ServerStarter"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
