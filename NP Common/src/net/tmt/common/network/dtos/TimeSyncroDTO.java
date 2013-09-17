@@ -1,20 +1,23 @@
 package net.tmt.common.network.dtos;
 
 public class TimeSyncroDTO {
-	private long	id;
+	private int		id;
 
 	private long	clientTimestamp;
 	private long	serverTimestamp;
 
-	public TimeSyncroDTO(final long id) {
+	public TimeSyncroDTO() {
+	}
+
+	public TimeSyncroDTO(final int id) {
 		this.id = id;
 	}
 
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(final long id) {
+	public void setId(final int id) {
 		this.id = id;
 	}
 

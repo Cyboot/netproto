@@ -21,14 +21,10 @@ public class NetworkListener extends Listener {
 			logger.trace("received package #" + dto.getPacketNr());
 			manager.addReceivedPackageDTO(dto);
 		} else if (object instanceof TimeSyncroDTO) {
+			logger.trace("received TimeSyncroDTO #" + ((TimeSyncroDTO) object).getId());
 			TimeSynchronizer.getInstance().put((TimeSyncroDTO) object);
 		} else {
 			logger.trace(object);
 		}
-	}
-
-	@Override
-	public void connected(final Connection connection) {
-		// manager.registerClientID(connection.getID());
 	}
 }

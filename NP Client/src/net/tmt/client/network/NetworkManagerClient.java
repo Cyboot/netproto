@@ -43,6 +43,7 @@ public class NetworkManagerClient implements DTOSender, DTOReceiver {
 			kryoClient.connect(5000, hostname, Constants.SERVER_PORT_TCP, Constants.SERVER_PORT_UDP);
 
 			kryoClient.addListener(new NetworkListener());
+			TimeSynchronizer.init(kryoClient);
 		} catch (Exception e) {
 			logger.warn("unable to start kryo-client: " + e);
 			return false;
@@ -99,5 +100,9 @@ public class NetworkManagerClient implements DTOSender, DTOReceiver {
 
 	public void setRegisteredClientId(final long registeredClientId) {
 		this.registeredClientId = registeredClientId;
+		try {
+			TimeSynchronizer.getInstance().start();
+		} catch (Exception e) {
+		}
 	}
 }

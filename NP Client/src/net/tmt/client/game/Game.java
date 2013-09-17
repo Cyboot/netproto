@@ -74,7 +74,15 @@ public class Game {
 		}
 	}
 
+	private long	lastSynchronize	= Long.MAX_VALUE;
+
 	private void synchronizeEntities(final List<DTO> serverEntities) {
+		long delta = TimeUtil.getSynchroTimestamp() - lastSynchronize;
+		if (delta > Constants.SERVER_UPDATE_DELTA * 2)
+			logger.debug("last synchronize: " + delta + " ms");
+
+		lastSynchronize = TimeUtil.getSynchroTimestamp();
+
 		for (DTO d : serverEntities) {
 			if (d instanceof ServerInfoDTO) {
 				serverWorkLoad = ((ServerInfoDTO) d).getCpuWorkLoad();
@@ -115,11 +123,13 @@ public class Game {
 				logger.debug("adding new Entity from server #" + dto.getEntityID());
 			}
 
+
 			// the entities from the server is not perfectly up to date, so this
 			// updates them (like an extra tick() method)
-			for (int i = 1; i < timeDelay / Constants.DELTA_TARGET; i++) {
-				entityMap.get(id).tick(entityMap);
-			}
+			if (TimeUtil.isSynchronized())
+				for (int i = 1; i < timeDelay / Constants.DELTA_TARGET; i++) {
+					entityMap.get(id).tick(entityMap);
+				}
 		}
 	}
 
