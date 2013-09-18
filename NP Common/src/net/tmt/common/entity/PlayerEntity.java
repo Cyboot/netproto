@@ -99,7 +99,7 @@ public class PlayerEntity extends Entity {
 	}
 
 	@Override
-	public void updateTick(final EntityFactory factory) {
+	public void updateTick(final EntityHandler caller) {
 		engineMain = false;
 		engineRight = false;
 		engineLeft = false;
@@ -119,7 +119,7 @@ public class PlayerEntity extends Entity {
 		}
 		if (timerBullet.isTimeleft() && input.isKeyDown(KeyEvent.VK_SPACE)) {
 			timerBullet.reset();
-			factory.addLater().createBullet(getPos().copy(), Vector2d.createByAngle(rotationAngle));
+			caller.getFactory().addLater().createBullet(getPos().copy(), Vector2d.createByAngle(rotationAngle));
 		}
 	}
 

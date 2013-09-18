@@ -59,7 +59,7 @@ public abstract class Entity {
 			pos.add(dir);
 
 			if (isOwner())
-				updateTick(caller.getFactory());
+				updateTick(caller);
 		} else {
 			deleteTimeleft -= Constants.DELTA_TARGET;
 		}
@@ -69,7 +69,7 @@ public abstract class Entity {
 	/**
 	 * called from tick() if the caller is also the owner.
 	 */
-	protected abstract void updateTick(final EntityFactory factory);
+	protected abstract void updateTick(final EntityHandler caller);
 
 	public void kill() {
 		deleteTimeleft = 1000;

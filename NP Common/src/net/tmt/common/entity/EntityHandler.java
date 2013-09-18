@@ -8,6 +8,5 @@ public interface EntityHandler {
 
 	public Map<Long, Entity> getEntityMap();
 
-	public EntityHandler getSelf();
-
+	public boolean isUnderEntityLimit();
 }

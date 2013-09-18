@@ -67,6 +67,8 @@ public class GameLoop extends Thread implements EntityHandler {
 			addEntity(entity);
 		}
 
+		logger.debug("Entitycount: " + entityMap.size());
+
 
 		if (timerSend.isTimeleft()) {
 			network.sendDTO(new ServerInfoDTO(StringFormatter.format(cpuWorkload)));
@@ -159,8 +161,8 @@ public class GameLoop extends Thread implements EntityHandler {
 	}
 
 	@Override
-	public EntityHandler getSelf() {
-		return this;
+	public boolean isUnderEntityLimit() {
+		return entityMap.size() + entityFactory.getNewEntityCount() < Constants.ENTITY_LIMIT;
 	}
 
 	@Override

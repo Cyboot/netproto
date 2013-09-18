@@ -203,8 +203,8 @@ public class Game implements EntityHandler {
 	}
 
 	@Override
-	public EntityHandler getSelf() {
-		return this;
+	public boolean isUnderEntityLimit() {
+		return entityMap.size() + entityFactory.getNewEntityCount() < Constants.ENTITY_LIMIT;
 	}
 
 	@Override
