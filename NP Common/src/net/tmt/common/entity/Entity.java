@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.util.Map;
 
+import net.tmt.Constants;
 import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.util.TimeUtil;
 import net.tmt.common.util.Vector2d;
@@ -12,17 +13,17 @@ import net.tmt.common.util.Vector2d;
 import org.apache.log4j.Logger;
 
 public abstract class Entity {
-	protected static Logger	logger	= Logger.getLogger(Entity.class);
+	protected static Logger	logger			= Logger.getLogger(Entity.class);
 
 	protected Image			img;
-	private boolean			isAlive	= true;
+	private int				deleteTimeleft	= -Integer.MIN_VALUE;
 	protected Vector2d		pos;
 	protected Vector2d		dir;
 
 	private long			entityID;
 	private long			clientId;
-	private int				width	= 0;
-	private int				height	= 0;
+	private int				width			= 0;
+	private int				height			= 0;
 
 	private boolean			owned;
 
@@ -52,10 +53,15 @@ public abstract class Entity {
 	 * 
 	 */
 	public void tick(final Map<Long, Entity> others) {
-		pos.add(dir);
+		if (isAlive()) {
+			pos.add(dir);
 
-		if (isOwner())
-			updateTick();
+			if (isOwner())
+				updateTick();
+		} else {
+			deleteTimeleft -= Constants.DELTA_TARGET;
+		}
+
 	}
 
 	/**
@@ -64,7 +70,11 @@ public abstract class Entity {
 	protected abstract void updateTick();
 
 	public void kill() {
-		isAlive = false;
+		deleteTimeleft = 1000;
+	}
+
+	public void setDeleteTimeleft(final int deleteTimeleft) {
+		this.deleteTimeleft = deleteTimeleft;
 	}
 
 	protected void renderDebug(final Graphics g, final int offsetX, final int offsetY) {
@@ -74,21 +84,25 @@ public abstract class Entity {
 		g.drawString("$" + getClientId() + "", pos.x() + offsetX, pos.y() + offsetY + 10);
 	}
 
+	public boolean isDeleted() {
+		return deleteTimeleft < 0 && deleteTimeleft != Integer.MIN_VALUE;
+	}
 
 	public boolean isAlive() {
-		return isAlive;
+		return deleteTimeleft == Integer.MIN_VALUE;
 	}
 
 	public abstract void render(Graphics g);
 
 	public EntityDTO toDTO() {
-		return new EntityDTO(entityID, clientId, TimeUtil.getSynchroTimestamp(), pos, dir);
+		return new EntityDTO(entityID, clientId, TimeUtil.getSynchroTimestamp(), pos, dir, deleteTimeleft);
 	}
 
 	public void updateFromDTO(final EntityDTO dto) {
 		entityID = dto.getEntityID();
 		pos.set(dto.getPos());
 		dir.set(dto.getDir());
+		deleteTimeleft = dto.getDeleteTimeleft();
 	}
 
 	public long getEntityID() {

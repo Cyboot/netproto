@@ -48,9 +48,13 @@ public class GameLoop extends Thread {
 		if (network.hasClientDisconnected())
 			removeDisconnectedClientEntities(network.getClientDisconnectedId());
 
-		for (Entry<Long, Entity> e : entityMap.entrySet()) {
-			e.getValue().tick(this.entityMap);
+		List<Long> deletedEntities = new ArrayList<>();
+		for (Entity e : entityMap.values()) {
+			e.tick(this.entityMap);
+			if (e.isDeleted())
+				deletedEntities.add(e.getEntityID());
 		}
+		entityMap.keySet().removeAll(deletedEntities);
 
 		// add new asteroid from time to time
 		if (timerAddAsteroids.isTimeleft()) {
@@ -71,14 +75,10 @@ public class GameLoop extends Thread {
 	}
 
 	private void removeDisconnectedClientEntities(final long clientDisconnectedID) {
-		List<Entity> removedEntities = new ArrayList<>();
-
 		for (Entity e : entityMap.values()) {
 			if (e.getClientId() == clientDisconnectedID)
-				removedEntities.add(e);
+				e.setDeleteTimeleft(500);
 		}
-		entityMap.values().removeAll(removedEntities);
-		logger.debug("removed " + removedEntities.size() + " Entities from former Client #" + clientDisconnectedID);
 	}
 
 	private void addEntity(final Entity entity) {

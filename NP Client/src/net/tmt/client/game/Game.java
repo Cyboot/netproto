@@ -57,9 +57,13 @@ public class Game {
 		}
 
 
+		List<Long> deletedEntities = new ArrayList<>();
 		for (Entity e : entityMap.values()) {
 			e.tick(this.entityMap);
+			if (e.isDeleted())
+				deletedEntities.add(e.getEntityID());
 		}
+		entityMap.keySet().removeAll(deletedEntities);
 
 		if (network.hasUnreadDTOs()) {
 			synchronizeEntities(network.getUnreadDTOs());
