@@ -18,6 +18,16 @@ public class BulletEntity extends Entity {
 	}
 
 	@Override
+	public int getWidth() {
+		return BulletEntity.RADIUS * 2;
+	}
+
+	@Override
+	public int getHeight() {
+		return BulletEntity.RADIUS * 2;
+	}
+
+	@Override
 	protected void updateTick(final EntityFactory factory) {
 	}
 

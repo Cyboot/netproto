@@ -3,7 +3,6 @@ package net.tmt.common.entity;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.util.Map;
 
 import net.tmt.Constants;
 import net.tmt.common.network.dtos.EntityDTO;
@@ -55,12 +54,12 @@ public abstract class Entity {
 	 *            TODO
 	 * 
 	 */
-	public void tick(final Map<Long, Entity> others, final EntityFactory factory) {
+	public void tick(final EntityHandler caller) {
 		if (isAlive()) {
 			pos.add(dir);
 
 			if (isOwner())
-				updateTick(factory);
+				updateTick(caller.getFactory());
 		} else {
 			deleteTimeleft -= Constants.DELTA_TARGET;
 		}

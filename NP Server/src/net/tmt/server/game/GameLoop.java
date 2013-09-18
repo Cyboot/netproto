@@ -10,6 +10,7 @@ import net.tmt.Constants;
 import net.tmt.common.entity.AsteroidEntity;
 import net.tmt.common.entity.Entity;
 import net.tmt.common.entity.EntityFactory;
+import net.tmt.common.entity.EntityHandler;
 import net.tmt.common.network.dtos.BulletDTO;
 import net.tmt.common.network.dtos.DTO;
 import net.tmt.common.network.dtos.EntityDTO;
@@ -22,7 +23,7 @@ import net.tmt.server.network.NetworkManagerServer;
 
 import org.apache.log4j.Logger;
 
-public class GameLoop extends Thread {
+public class GameLoop extends Thread implements EntityHandler {
 	private static final int		DELTA_TARGET_NANOS	= Constants.DELTA_TARGET * 1000 * 1000;
 	private static Logger			logger				= Logger.getLogger(GameLoop.class);
 
@@ -32,7 +33,7 @@ public class GameLoop extends Thread {
 	private Map<Long, Entity>		entityMap			= new HashMap<Long, Entity>();
 	private EntityFactory			entityFactory		= EntityFactory.getServerFactory();
 
-	private CountdownTimer			timerAddAsteroids	= new CountdownTimer(500000);
+	private CountdownTimer			timerAddAsteroids	= new CountdownTimer(1000);
 
 	public GameLoop() {
 	}
@@ -50,7 +51,7 @@ public class GameLoop extends Thread {
 
 		List<Long> deletedEntities = new ArrayList<>();
 		for (Entity e : entityMap.values()) {
-			e.tick(this.entityMap, entityFactory);
+			e.tick(this);
 			if (e.isDeleted())
 				deletedEntities.add(e.getEntityID());
 		}
@@ -150,5 +151,20 @@ public class GameLoop extends Thread {
 			}
 		}
 		cpuWorkload = (float) timePassed / DELTA_TARGET_NANOS;
+	}
+
+	@Override
+	public EntityFactory getFactory() {
+		return this.entityFactory;
+	}
+
+	@Override
+	public EntityHandler getSelf() {
+		return this;
+	}
+
+	@Override
+	public Map<Long, Entity> getEntityMap() {
+		return this.entityMap;
 	}
 }

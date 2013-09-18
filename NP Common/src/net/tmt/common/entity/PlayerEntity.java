@@ -3,7 +3,6 @@ package net.tmt.common.entity;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
-import java.util.Map;
 
 import net.tmt.Constants;
 import net.tmt.client.engine.Controls;
@@ -65,8 +64,8 @@ public class PlayerEntity extends Entity {
 	}
 
 	@Override
-	public void tick(final Map<Long, Entity> others, final EntityFactory factory) {
-		super.tick(others, factory);
+	public void tick(final EntityHandler caller) {
+		super.tick(caller);
 
 		double dx = Math.sin(rotationAngle) * speed;
 		double dy = -Math.cos(rotationAngle) * speed;

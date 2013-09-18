@@ -20,18 +20,37 @@ public class AsteroidEntity extends Entity {
 		super(pos, dir);
 	}
 
-	public void halfSize() {
-		this.size -= 1;
-		if (this.size == 0)
-			this.kill();
-	}
-
 	public void setSize(final int s) {
 		this.size = s;
 	}
 
 	public int getSize() {
 		return this.size;
+	}
+
+	private void breakUp(final EntityHandler handler) {
+
+		// FIXME: causes game to freeze
+		//
+		// AsteroidEntity part1 = handler.getFactory().addLater()
+		// .createAsteroid(this.pos, new Vector2d(), this.size / 2,
+		// Constants.SERVER_ID);
+		// AsteroidEntity part2 = handler.getFactory().addLater()
+		// .createAsteroid(this.pos, new Vector2d(), this.size / 2,
+		// Constants.SERVER_ID);
+
+		// FIXME: causes a ConcurrentModificationException
+		//
+		// AsteroidEntity part1 = handler.getFactory().createAsteroid(this.pos,
+		// new Vector2d(), this.size / 2,
+		// Constants.SERVER_ID);
+		// AsteroidEntity part2 = handler.getFactory().createAsteroid(this.pos,
+		// new Vector2d(), this.size / 2,
+		// Constants.SERVER_ID);
+		// handler.getEntityMap().put(part1.getEntityID(), part1);
+		// handler.getEntityMap().put(part2.getEntityID(), part2);
+
+		this.kill();
 	}
 
 	@Override
@@ -52,14 +71,15 @@ public class AsteroidEntity extends Entity {
 	}
 
 	public boolean breakableBy(final Entity e) {
-		if (e instanceof AsteroidEntity || e instanceof PlayerEntity)
+		if (e instanceof AsteroidEntity || e instanceof PlayerEntity || e instanceof BulletEntity)
 			return true;
 		return false;
 	}
 
 	@Override
-	public void tick(final Map<Long, Entity> others, final EntityFactory factory) {
-		super.tick(others, factory);
+	public void tick(final EntityHandler caller) {
+		super.tick(caller);
+		Map<Long, Entity> others = caller.getEntityMap();
 
 		if (pos.x < 0 || pos.x > Constants.WIDTH)
 			kill();
@@ -76,7 +96,7 @@ public class AsteroidEntity extends Entity {
 						&& Math.abs(pos.x - this.size / 2) < Math.abs(other.getPos().x + other.getWidth() / 2)
 						&& Math.abs(pos.y) + this.size / 2 > Math.abs(other.getPos().y - other.getHeight() / 2)
 						&& Math.abs(pos.y - this.size / 2) < Math.abs(other.getPos().y) + other.getHeight() / 2) {
-					this.halfSize();
+					this.breakUp(caller.getSelf());
 				}
 			}
 		}
