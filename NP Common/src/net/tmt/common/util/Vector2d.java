@@ -47,6 +47,22 @@ public class Vector2d implements Serializable {
 		return this;
 	}
 
+	public Vector2d normalize() {
+		double length = length();
+		this.x /= length;
+		this.y /= length;
+		return this;
+	}
+
+	public double length() {
+		return distance(new Vector2d());
+	}
+
+	public static Vector2d createByAngle(final double angleRad) {
+		Vector2d result = new Vector2d(Math.sin(angleRad), -Math.cos(angleRad));
+		return result.normalize();
+	}
+
 	public int x() {
 		return (int) x;
 	}
@@ -55,9 +71,15 @@ public class Vector2d implements Serializable {
 		return (int) y;
 	}
 
-
 	@Override
 	public String toString() {
 		return "(" + StringFormatter.format(x, 4, 2) + " : " + StringFormatter.format(y, 4, 2) + ")";
+	}
+
+	public Vector2d multiply(final double speed) {
+		this.x *= speed;
+		this.y *= speed;
+
+		return this;
 	}
 }

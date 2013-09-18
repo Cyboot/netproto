@@ -1,18 +1,36 @@
 package net.tmt.common.entity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.tmt.common.util.Vector2d;
 
 public class EntityFactory {
-	private static EntityFactory	server	= new EntityFactory();
-	private static EntityFactory	client	= new EntityFactory();
+	private static EntityFactory	server				= new EntityFactory();
+	private static EntityFactory	client				= new EntityFactory();
 
 	private long					ownerId;
 	private long					currentEntityId;
+
+	private boolean					addingToMap			= false;
+	private Map<Long, Entity>		entityToCreateMap	= new HashMap<Long, Entity>();
 
 	private EntityFactory() {
 
 	}
 
+	public EntityFactory addLater() {
+		addingToMap = true;
+		return this;
+	}
+
+	public BulletEntity createBullet(final Vector2d pos, final Vector2d dir) {
+		return createBullet(pos, dir, ownerId);
+	}
+
+	public BulletEntity createBullet(final Vector2d pos, final Vector2d dir, final long clientId) {
+		return updateIDs(new BulletEntity(pos, dir), clientId);
+	}
 
 	public AsteroidEntity createAsteroid(final Vector2d pos, final Vector2d dir, final int size, final long clientId) {
 		return updateIDs(new AsteroidEntity(pos, dir, size), clientId);
@@ -36,6 +54,12 @@ public class EntityFactory {
 		entity.setClientId(clientId);
 		entity.setEntityID(currentEntityId++);
 		entity.setOwned(clientId == ownerId);
+
+		if (addingToMap) {
+			addingToMap = false;
+			entityToCreateMap.put(entity.getEntityID(), entity);
+		}
+
 		return entity;
 	}
 
@@ -58,5 +82,10 @@ public class EntityFactory {
 
 	public long getCURRENT_ENTITY_ID() {
 		return currentEntityId;
+	}
+
+	public void putAllNewEntities(final Map<Long, Entity> entityMap) {
+		entityMap.putAll(entityToCreateMap);
+		entityToCreateMap.clear();
 	}
 }

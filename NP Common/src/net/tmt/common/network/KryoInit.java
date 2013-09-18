@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.tmt.common.network.dtos.AsteroidDTO;
+import net.tmt.common.network.dtos.BulletDTO;
 import net.tmt.common.network.dtos.DTO;
 import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.network.dtos.PacketDTO;
@@ -26,6 +27,7 @@ public class KryoInit {
 		kryo.register(EntityDTO.class);
 		kryo.register(PacketDTO.class);
 		kryo.register(PlayerDTO.class);
+		kryo.register(BulletDTO.class);
 		kryo.register(ServerInfoDTO.class);
 		kryo.register(TimeSyncroDTO.class);
 

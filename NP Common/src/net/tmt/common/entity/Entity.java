@@ -51,13 +51,16 @@ public abstract class Entity {
 	 * as well as the servers GameLoop class therefore the ugly parameter —
 	 * sorry ^^
 	 * 
+	 * @param entitesToCreate
+	 *            TODO
+	 * 
 	 */
-	public void tick(final Map<Long, Entity> others) {
+	public void tick(final Map<Long, Entity> others, final EntityFactory factory) {
 		if (isAlive()) {
 			pos.add(dir);
 
 			if (isOwner())
-				updateTick();
+				updateTick(factory);
 		} else {
 			deleteTimeleft -= Constants.DELTA_TARGET;
 		}
@@ -67,7 +70,7 @@ public abstract class Entity {
 	/**
 	 * called from tick() if the caller is also the owner.
 	 */
-	protected abstract void updateTick();
+	protected abstract void updateTick(final EntityFactory factory);
 
 	public void kill() {
 		deleteTimeleft = 1000;

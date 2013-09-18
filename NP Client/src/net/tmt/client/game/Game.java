@@ -15,6 +15,7 @@ import net.tmt.common.entity.Entity;
 import net.tmt.common.entity.EntityFactory;
 import net.tmt.common.entity.PlayerEntity;
 import net.tmt.common.network.dtos.AsteroidDTO;
+import net.tmt.common.network.dtos.BulletDTO;
 import net.tmt.common.network.dtos.DTO;
 import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.network.dtos.PlayerDTO;
@@ -56,14 +57,14 @@ public class Game {
 			updateClientID(network.getRegisteredClientId(), Constants.CLIENT_ID_UNREGISTERED);
 		}
 
-
 		List<Long> deletedEntities = new ArrayList<>();
 		for (Entity e : entityMap.values()) {
-			e.tick(this.entityMap);
+			e.tick(this.entityMap, entityFactory);
 			if (e.isDeleted())
 				deletedEntities.add(e.getEntityID());
 		}
 		entityMap.keySet().removeAll(deletedEntities);
+		entityFactory.putAllNewEntities(entityMap);
 
 		if (network.hasUnreadDTOs()) {
 			synchronizeEntities(network.getUnreadDTOs());
@@ -121,6 +122,9 @@ public class Game {
 				if (dto instanceof PlayerDTO) {
 					entity = entityFactory.createPlayer(dto.getPos(), clientId);
 				}
+				if (dto instanceof BulletDTO) {
+					entity = entityFactory.createBullet(dto.getPos(), dto.getDir(), clientId);
+				}
 
 				entity.setEntityID(id);
 				entityMap.put(id, entity);
@@ -132,7 +136,7 @@ public class Game {
 			// updates them (like an extra tick() method)
 			if (TimeUtil.isSynchronized())
 				for (int i = 1; i < timeDelay / Constants.DELTA_TARGET; i++) {
-					entityMap.get(id).tick(entityMap);
+					entityMap.get(id).tick(entityMap, entityFactory);
 				}
 		}
 	}

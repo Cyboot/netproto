@@ -58,8 +58,8 @@ public class AsteroidEntity extends Entity {
 	}
 
 	@Override
-	public void tick(final Map<Long, Entity> others) {
-		super.tick(others);
+	public void tick(final Map<Long, Entity> others, final EntityFactory factory) {
+		super.tick(others, factory);
 
 		if (pos.x < 0 || pos.x > Constants.WIDTH)
 			kill();
@@ -103,7 +103,7 @@ public class AsteroidEntity extends Entity {
 	}
 
 	@Override
-	protected void updateTick() {
+	protected void updateTick(final EntityFactory factory) {
 		if (timerDirChange.isTimeleft())
 			dir.set(new Vector2d(Math.random() - 0.5, Math.random() - 0.5));
 	}

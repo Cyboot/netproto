@@ -10,7 +10,7 @@ import net.tmt.Constants;
 import net.tmt.common.entity.AsteroidEntity;
 import net.tmt.common.entity.Entity;
 import net.tmt.common.entity.EntityFactory;
-import net.tmt.common.entity.PlayerEntity;
+import net.tmt.common.network.dtos.BulletDTO;
 import net.tmt.common.network.dtos.DTO;
 import net.tmt.common.network.dtos.EntityDTO;
 import net.tmt.common.network.dtos.PlayerDTO;
@@ -50,11 +50,13 @@ public class GameLoop extends Thread {
 
 		List<Long> deletedEntities = new ArrayList<>();
 		for (Entity e : entityMap.values()) {
-			e.tick(this.entityMap);
+			e.tick(this.entityMap, entityFactory);
 			if (e.isDeleted())
 				deletedEntities.add(e.getEntityID());
 		}
 		entityMap.keySet().removeAll(deletedEntities);
+		entityFactory.putAllNewEntities(entityMap);
+
 
 		// add new asteroid from time to time
 		if (timerAddAsteroids.isTimeleft()) {
@@ -99,17 +101,21 @@ public class GameLoop extends Thread {
 			long id = dto.getEntityID();
 
 			if (!entityMap.containsKey(id)) {
+				Entity entity = null;
 				if (d instanceof PlayerDTO) {
-					PlayerEntity player = entityFactory.createPlayer(dto.getPos(), dto.getClientId());
-					player.setClientId(dto.getClientId());
-					player.setEntityID(dto.getEntityID());
-
-					logger.debug("adding new Player with EntityID= " + dto.getEntityID());
-					entityMap.put(player.getEntityID(), player);
+					entity = entityFactory.createPlayer(dto.getPos(), dto.getClientId());
 				}
+				if (d instanceof BulletDTO) {
+					entity = entityFactory.createBullet(dto.getPos(), dto.getDir());
+				}
+				entity.setClientId(dto.getClientId());
+				entity.setEntityID(dto.getEntityID());
+
+				logger.debug("adding new Entity #" + dto.getEntityID());
+				entityMap.put(entity.getEntityID(), entity);
 			}
 
-			if (dto instanceof PlayerDTO) {
+			if (dto instanceof PlayerDTO || dto instanceof BulletDTO) {
 				if (entityMap.containsKey(id)) {
 					entityMap.get(id).updateFromDTO(dto);
 				}
