@@ -10,6 +10,7 @@ import net.tmt.Constants;
 import net.tmt.common.entity.AsteroidEntity;
 import net.tmt.common.entity.Entity;
 import net.tmt.common.entity.EntityFactory;
+import net.tmt.common.entity.EntityHandler;
 import net.tmt.common.network.dtos.BulletDTO;
 import net.tmt.common.network.dtos.DTO;
 import net.tmt.common.network.dtos.EntityDTO;
@@ -22,7 +23,7 @@ import net.tmt.server.network.NetworkManagerServer;
 
 import org.apache.log4j.Logger;
 
-public class GameLoop extends Thread {
+public class GameLoop extends Thread implements EntityHandler {
 	private static final int		DELTA_TARGET_NANOS	= Constants.DELTA_TARGET * 1000 * 1000;
 	private static Logger			logger				= Logger.getLogger(GameLoop.class);
 
@@ -50,7 +51,7 @@ public class GameLoop extends Thread {
 
 		List<Long> deletedEntities = new ArrayList<>();
 		for (Entity e : entityMap.values()) {
-			e.tick(this.entityMap, entityFactory);
+			e.tick(this);
 			if (e.isDeleted())
 				deletedEntities.add(e.getEntityID());
 		}
@@ -65,6 +66,8 @@ public class GameLoop extends Thread {
 					Constants.SERVER_ID);
 			addEntity(entity);
 		}
+
+		logger.debug("Entitycount: " + entityMap.size());
 
 
 		if (timerSend.isTimeleft()) {
@@ -150,5 +153,20 @@ public class GameLoop extends Thread {
 			}
 		}
 		cpuWorkload = (float) timePassed / DELTA_TARGET_NANOS;
+	}
+
+	@Override
+	public EntityFactory getFactory() {
+		return this.entityFactory;
+	}
+
+	@Override
+	public boolean isUnderEntityLimit() {
+		return entityMap.size() + entityFactory.getNewEntityCount() < Constants.ENTITY_LIMIT;
+	}
+
+	@Override
+	public Map<Long, Entity> getEntityMap() {
+		return this.entityMap;
 	}
 }

@@ -13,6 +13,7 @@ import net.tmt.client.engine.GameEngine;
 import net.tmt.client.network.NetworkManagerClient;
 import net.tmt.common.entity.Entity;
 import net.tmt.common.entity.EntityFactory;
+import net.tmt.common.entity.EntityHandler;
 import net.tmt.common.entity.PlayerEntity;
 import net.tmt.common.network.dtos.AsteroidDTO;
 import net.tmt.common.network.dtos.BulletDTO;
@@ -27,7 +28,7 @@ import net.tmt.serverstarter.ServerStarter;
 
 import org.apache.log4j.Logger;
 
-public class Game {
+public class Game implements EntityHandler {
 	public static final int			WIDTH			= Constants.WIDTH;
 	public static final int			HEIGHT			= Constants.HEIGHT;
 
@@ -59,7 +60,7 @@ public class Game {
 
 		List<Long> deletedEntities = new ArrayList<>();
 		for (Entity e : entityMap.values()) {
-			e.tick(this.entityMap, entityFactory);
+			e.tick(this);
 			if (e.isDeleted())
 				deletedEntities.add(e.getEntityID());
 		}
@@ -136,7 +137,7 @@ public class Game {
 			// updates them (like an extra tick() method)
 			if (TimeUtil.isSynchronized())
 				for (int i = 1; i < timeDelay / Constants.DELTA_TARGET; i++) {
-					entityMap.get(id).tick(entityMap, entityFactory);
+					entityMap.get(id).tick(this);
 				}
 		}
 	}
@@ -194,5 +195,20 @@ public class Game {
 		}
 		entityMap.keySet().removeAll(removedIDs);
 		entityMap.putAll(remappedEntities);
+	}
+
+	@Override
+	public EntityFactory getFactory() {
+		return this.entityFactory;
+	}
+
+	@Override
+	public boolean isUnderEntityLimit() {
+		return entityMap.size() + entityFactory.getNewEntityCount() < Constants.ENTITY_LIMIT;
+	}
+
+	@Override
+	public Map<Long, Entity> getEntityMap() {
+		return this.entityMap;
 	}
 }

@@ -3,7 +3,6 @@ package net.tmt.common.entity;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
-import java.util.Map;
 
 import net.tmt.Constants;
 import net.tmt.client.engine.Controls;
@@ -65,8 +64,8 @@ public class PlayerEntity extends Entity {
 	}
 
 	@Override
-	public void tick(final Map<Long, Entity> others, final EntityFactory factory) {
-		super.tick(others, factory);
+	public void tick(final EntityHandler caller) {
+		super.tick(caller);
 
 		double dx = Math.sin(rotationAngle) * speed;
 		double dy = -Math.cos(rotationAngle) * speed;
@@ -100,7 +99,7 @@ public class PlayerEntity extends Entity {
 	}
 
 	@Override
-	public void updateTick(final EntityFactory factory) {
+	public void updateTick(final EntityHandler caller) {
 		engineMain = false;
 		engineRight = false;
 		engineLeft = false;
@@ -120,7 +119,7 @@ public class PlayerEntity extends Entity {
 		}
 		if (timerBullet.isTimeleft() && input.isKeyDown(KeyEvent.VK_SPACE)) {
 			timerBullet.reset();
-			factory.addLater().createBullet(getPos().copy(), Vector2d.createByAngle(rotationAngle));
+			caller.getFactory().addLater().createBullet(getPos().copy(), Vector2d.createByAngle(rotationAngle));
 		}
 	}
 

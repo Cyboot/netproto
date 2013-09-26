@@ -88,4 +88,8 @@ public class EntityFactory {
 		entityMap.putAll(entityToCreateMap);
 		entityToCreateMap.clear();
 	}
+
+	public int getNewEntityCount() {
+		return entityToCreateMap.size();
+	}
 }

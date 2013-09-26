@@ -18,8 +18,15 @@ public class BulletEntity extends Entity {
 	}
 
 	@Override
-	protected void updateTick(final EntityFactory factory) {
+	public int getWidth() {
+		return BulletEntity.RADIUS * 2;
 	}
+
+	@Override
+	public int getHeight() {
+		return BulletEntity.RADIUS * 2;
+	}
+
 
 	@Override
 	public void render(final Graphics g) {
@@ -32,5 +39,9 @@ public class BulletEntity extends Entity {
 	@Override
 	public EntityDTO toDTO() {
 		return new BulletDTO(super.toDTO());
+	}
+
+	@Override
+	protected void updateTick(final EntityHandler caller) {
 	}
 }
