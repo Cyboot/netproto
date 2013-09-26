@@ -32,7 +32,7 @@ public class GameLoop extends Thread {
 	private Map<Long, Entity>		entityMap			= new HashMap<Long, Entity>();
 	private EntityFactory			entityFactory		= EntityFactory.getServerFactory();
 
-	private CountdownTimer			timerAddAsteroids	= new CountdownTimer(500000);
+	private CountdownTimer			timerAddAsteroids	= new CountdownTimer(1000);
 
 	public GameLoop() {
 	}
